@@ -1,36 +1,39 @@
 # libpicselect
 
-#### Description
-图片选择库
+介绍
+图片选择库，基于安卓原生实现的图片选择库
 
-#### Software Architecture
-Software architecture description
+#### 使用说明
+1.  图片加载配置
+//图片加载库
+        PicSelConfig.getInstance().setLoaderManager(this.getApplicationContext(), new PicSelConfig.BindImageViewListener() {
+            @Override
+            public void BindImageView(String path, ImageView iv) {
+                Glide.with(MainActivity.this.getApplicationContext()).load(path).into(iv);
+            }
 
-#### Installation
+            @Override
+            public void BindSmallImageView(String path, ImageView iv) {
+                Glide.with(MainActivity.this.getApplicationContext()).load(path).into(iv);
+            }
+        });
+2.  启动选择页面配置
+//加载图片
+PicSelMain.getIntance().getPicSingle(false,MainActivity.this,true);
+3.  数据回调配置
+PicSelMain.getIntance().ActivityForResult(requestCode, resultCode, data, new PicSelMain.PicCallbackListener() {
+            @Override
+            public void cameraResult(String path) {
+                Glide.with(MainActivity.this).load(path).into(img);
+            }
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
+            @Override
+            public void selectResult(ArrayList<String> result) {
+                Glide.with(MainActivity.this).load(result.get(0)).into(img);
+            }
 
-#### Instructions
-
-1.  xxxx
-2.  xxxx
-3.  xxxx
-
-#### Contribution
-
-1.  Fork the repository
-2.  Create Feat_xxx branch
-3.  Commit your code
-4.  Create Pull Request
-
-
-#### Gitee Feature
-
-1.  You can use Readme\_XXX.md to support different languages, such as Readme\_en.md, Readme\_zh.md
-2.  Gitee blog [blog.gitee.com](https://blog.gitee.com)
-3.  Explore open source project [https://gitee.com/explore](https://gitee.com/explore)
-4.  The most valuable open source project [GVP](https://gitee.com/gvp)
-5.  The manual of Gitee [https://gitee.com/help](https://gitee.com/help)
-6.  The most popular members  [https://gitee.com/gitee-stars/](https://gitee.com/gitee-stars/)
+            @Override
+            public void cropResult(String path) {
+                Glide.with(MainActivity.this).load(path).into(img);
+            }
+ });
