@@ -32,6 +32,8 @@ public class PicSelectManager implements PicSelectApi {
     private volatile boolean isInit = false;
     private Handler mIOHandler;//io handler
     private OnResultListener mCallBack;
+    //是否显示gid
+    private boolean isShowGif = false;
 
     private static final class SingleHolder {
         static final PicSelectManager mInstance = new PicSelectManager();
@@ -61,10 +63,11 @@ public class PicSelectManager implements PicSelectApi {
     }
 
     @Override
-    public void load() {
+    public void load(boolean isShowGif) {
         if (!isInit) {
             return;
         }
+        this.isShowGif = isShowGif;
         mIOHandler.removeCallbacksAndMessages(null);
         mIOHandler.post(loadRunnable);
     }
@@ -87,7 +90,10 @@ public class PicSelectManager implements PicSelectApi {
         }
     };
 
-    //加载数据的函数
+    /**
+     * 加载数据的函数
+     * change by lzt 20200515 增加是否过滤gif的处理逻辑
+     */
     private void loadDataByCursor() {
         Cursor cursor = mContext.getContentResolver().query(
                 MediaStore.Images.Media.EXTERNAL_CONTENT_URI, null, null, null, null);
@@ -97,6 +103,14 @@ public class PicSelectManager implements PicSelectApi {
         while (cursor.moveToNext()) {
             //获取图片的名称
             String name = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DISPLAY_NAME));
+            if (TextUtils.isEmpty(name)) {
+                continue;
+            } else {
+                //判断是否包含gif
+                if (name.toLowerCase().contains(".gif") && !isShowGif) {
+                    continue;
+                }
+            }
             //日期
             int date = cursor.getInt(cursor.getColumnIndex(MediaStore.Images.Media.DATE_MODIFIED));
             //获取图片的生成日期
@@ -108,7 +122,7 @@ public class PicSelectManager implements PicSelectApi {
         }
         List<PicInfo> result = new ArrayList<>();
         for (int i = 0; i < picName.size(); i++) {
-            PicInfo info = new PicInfo(picName.get(i), picFileName.get(i),picDate.get(i));
+            PicInfo info = new PicInfo(picName.get(i), picFileName.get(i), picDate.get(i));
             result.add(info);
         }
         //统计目录下文件个数
@@ -145,11 +159,11 @@ public class PicSelectManager implements PicSelectApi {
             }
         }
         //修改时间排序
-        for(Map.Entry<String,List<PicInfo>> arg:filterMap.entrySet()){
+        for (Map.Entry<String, List<PicInfo>> arg : filterMap.entrySet()) {
             Collections.sort(arg.getValue(), new Comparator<PicInfo>() {
                 @Override
                 public int compare(PicInfo o1, PicInfo o2) {
-                    return o2.getDate()-o1.getDate();
+                    return o2.getDate() - o1.getDate();
                 }
             });
         }

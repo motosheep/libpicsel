@@ -48,7 +48,7 @@ public class PicSelAdapter extends RecyclerView.Adapter<PicSelAdapter.PicHolder>
         this.mSelectLimit = selectLimit;
     }
 
-    public void setData(List<PicInfo> data, boolean isShowGif) {
+    public void setData(List<PicInfo> data) {
         if (data == null) {
             data = new ArrayList<>();
         }
@@ -56,12 +56,6 @@ public class PicSelAdapter extends RecyclerView.Adapter<PicSelAdapter.PicHolder>
         //需要防止对象引用
         for (PicInfo cache : data) {
             PicInfo arg = new PicInfo();
-            if (!isShowGif) {
-                //忽略大小写
-                if (cache.getPath().toLowerCase().contains(".gif")) {
-                    continue;
-                }
-            }
             arg.setPath(cache.getPath());
             arg.setDirectory(cache.getDirectory());
             arg.setDirectoryCount(cache.getDirectoryCount());

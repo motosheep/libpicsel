@@ -11,7 +11,7 @@ public interface PicSelectApi {
 
     void init(Context context, InitCallBack callBack);
 
-    void load();
+    void load(boolean isShowGif);
 
     void release();
 

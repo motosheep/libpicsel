@@ -152,7 +152,7 @@ public class PicSelectActivity extends PicBaseActivity {
                     @Override
                     public void run() {
                         if (mAdapter != null) {
-                            mAdapter.setData(result, isShowGif);
+                            mAdapter.setData(result);
                         }
                     }
                 });
@@ -175,7 +175,7 @@ public class PicSelectActivity extends PicBaseActivity {
 
             }
         });
-        PicSelectManager.getInstance().load();
+        PicSelectManager.getInstance().load(isShowGif);
     }
 
     @Override
@@ -187,7 +187,7 @@ public class PicSelectActivity extends PicBaseActivity {
             mTitle.setText(!TextUtils.isEmpty(directory) ? directory : "暂无标题");
             mConfirm.setText(String.format(getResources().getString(R.string.pic_select_activity_checkbox_count), 0, mLimit));
             if (!TextUtils.isEmpty(directory) && mFilterData.get(directory) != null) {
-                mAdapter.setData(mFilterData.get(directory),isShowGif);
+                mAdapter.setData(mFilterData.get(directory));
             }
         }
         PicSelMain.getIntance().ActivityForResult(requestCode, resultCode, data, new PicSelMain.PicCallbackListener() {
