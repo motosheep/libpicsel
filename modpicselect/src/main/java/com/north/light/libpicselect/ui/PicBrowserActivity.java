@@ -69,8 +69,10 @@ public class PicBrowserActivity extends PicBaseActivity {
         mSelTips.setText(String.format(getResources().getString(R.string.pic_select_activity_checkbox_count), 0, selLimit));
         if (isShowSelMode) {
             mCheckBox.setVisibility(View.VISIBLE);
+            mSelTips.setVisibility(View.VISIBLE);
         } else {
             mCheckBox.setVisibility(View.INVISIBLE);
+            mSelTips.setVisibility(View.INVISIBLE);
         }
         mBack.setOnClickListener(new View.OnClickListener() {
             @Override

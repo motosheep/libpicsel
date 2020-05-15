@@ -4,8 +4,13 @@
 图片选择库，基于安卓原生实现的图片选择库
 
 #### 使用说明
+
 1.  图片加载配置
+
+
 //图片加载库
+
+
         PicSelConfig.getInstance().setLoaderManager(this.getApplicationContext(), new PicSelConfig.BindImageViewListener() {
             @Override
             public void BindImageView(String path, ImageView iv) {
@@ -17,10 +22,17 @@
                 Glide.with(MainActivity.this.getApplicationContext()).load(path).into(iv);
             }
         });
+
+
 2.  启动选择页面配置
+
 //加载图片
+
+
 PicSelMain.getIntance().getPicSingle(false,MainActivity.this,true);
+
 3.  数据回调配置
+
 PicSelMain.getIntance().ActivityForResult(requestCode, resultCode, data, new PicSelMain.PicCallbackListener() {
             @Override
             public void cameraResult(String path) {
@@ -37,3 +49,13 @@ PicSelMain.getIntance().ActivityForResult(requestCode, resultCode, data, new Pic
                 Glide.with(MainActivity.this).load(path).into(img);
             }
  });
+
+
+//--------------------------------------------------------------------------------------------------
+ 20200516版本更新：
+
+ 1修改界面的视觉
+
+ 2修改图片图片浏览详情，允许选择图片
+
+
