@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -16,9 +17,11 @@ import com.north.light.libpicselect.R;
 import com.north.light.libpicselect.adapter.PicSelAdapter;
 import com.north.light.libpicselect.bean.DirecotryIntentInfo;
 import com.north.light.libpicselect.bean.PicInfo;
+import com.north.light.libpicselect.bean.PicSelIntentInfo;
 import com.north.light.libpicselect.model.PicSelConfig;
 import com.north.light.libpicselect.model.PicSelectApi;
 import com.north.light.libpicselect.model.PicSelectManager;
+import com.north.light.libpicselect.utils.CloneUtils;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -71,12 +74,12 @@ public class PicSelectActivity extends PicBaseActivity {
         mBack = findViewById(R.id.activity_pic_sel_back);
         mTitle = findViewById(R.id.activity_pic_sel_title);
         mConfirm = findViewById(R.id.activity_pic_sel_confirm);
-        //设置初始值
-        mConfirm.setText(String.format(getResources().getString(R.string.pic_select_activity_checkbox_count), 0, mLimit));
         mContent.setLayoutManager(new GridLayoutManager(this, 4));
         mAdapter = new PicSelAdapter(this, isShowCamera);
         mAdapter.setSelectLimie(mLimit);
         mContent.setAdapter(mAdapter);
+        //设置初始值
+        updateSelCount();
     }
 
     private void initData() {
@@ -119,24 +122,24 @@ public class PicSelectActivity extends PicBaseActivity {
             }
         });
         mAdapter.setOnClickListener(new PicSelAdapter.OnClickListener() {
+
             @Override
-            public void click(String directory) {
-                //点击
-                if (!TextUtils.isEmpty(directory)) {
-                    List<String> picList = new ArrayList<>();
-                    picList.add(directory);
-                    PicBrowserActivity.launch(PicSelectActivity.this, picList);
+            public void click(List<PicInfo> data, int pos) {
+                if (data != null && data.size() != 0) {
+                    List<String> result = new ArrayList<>();
+                    List<PicInfo> local = CloneUtils.cloneObjectSer(data);
+                    PicSelIntentInfo.getInstance().setPicSelList(local);
+                    for (PicInfo cache : data) {
+                        result.add(cache.getPath());
+                    }
+                    PicBrowserActivity.launch(PicSelectActivity.this,result,pos,mLimit);
                 }
             }
 
             @Override
             public void check() {
                 //check box 事件
-                if (mAdapter != null) {
-                    int selSize = mAdapter.getSelectInfo().size();
-                    mConfirm.setText(String.format(getResources().getString(R.string.pic_select_activity_checkbox_count),
-                            selSize, mLimit));
-                }
+                updateSelCount();
             }
 
             @Override
@@ -185,9 +188,20 @@ public class PicSelectActivity extends PicBaseActivity {
             String directory = data.getStringExtra("path");
             //选中的目录
             mTitle.setText(!TextUtils.isEmpty(directory) ? directory : "暂无标题");
-            mConfirm.setText(String.format(getResources().getString(R.string.pic_select_activity_checkbox_count), 0, mLimit));
             if (!TextUtils.isEmpty(directory) && mFilterData.get(directory) != null) {
                 mAdapter.setData(mFilterData.get(directory));
+            }
+            updateSelCount();
+        }
+        if(requestCode==PicBrowserActivity.CODE_REQUEST&&resultCode==PicBrowserActivity.CODE_RESULT){
+            if(mAdapter!=null){
+                for(int i=0;i<PicSelIntentInfo.getInstance().getPicSelList().size();i++){
+                    if(PicSelIntentInfo.getInstance().getPicSelList().get(i).isSelect()){
+                        Log.d("PicSel","pic sel: " + i);
+                    }
+                }
+                mAdapter.setData(PicSelIntentInfo.getInstance().getPicSelList());
+                updateSelCount();
             }
         }
         PicSelMain.getIntance().ActivityForResult(requestCode, resultCode, data, new PicSelMain.PicCallbackListener() {
@@ -220,5 +234,16 @@ public class PicSelectActivity extends PicBaseActivity {
         mAdapter.reomveBindImageViewListener();
         mAdapter.removeOnClickListener();
         super.onDestroy();
+    }
+
+    /**
+     * 更新选中个数
+     * */
+    private void updateSelCount(){
+        if(mAdapter!=null){
+            int selSize = mAdapter.getSelectInfo().size();
+            mConfirm.setText(String.format(getResources().getString(R.string.pic_select_activity_checkbox_count),
+                    selSize, mLimit));
+        }
     }
 }

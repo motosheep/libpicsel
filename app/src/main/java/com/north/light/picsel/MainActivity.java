@@ -26,7 +26,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 //加载图片
-                PicSelMain.getIntance().getPicSingle(false,MainActivity.this,true);
+                PicSelMain.getIntance().getPicMul(false,MainActivity.this,5,true);
             }
         });
 

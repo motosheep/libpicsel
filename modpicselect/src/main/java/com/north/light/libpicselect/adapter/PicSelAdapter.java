@@ -18,6 +18,7 @@ import android.widget.Toast;
 
 import com.north.light.libpicselect.R;
 import com.north.light.libpicselect.bean.PicInfo;
+import com.north.light.libpicselect.utils.CloneUtils;
 import com.north.light.libpicselect.utils.PicScreenUtils;
 
 import java.util.ArrayList;
@@ -52,14 +53,16 @@ public class PicSelAdapter extends RecyclerView.Adapter<PicSelAdapter.PicHolder>
         if (data == null) {
             data = new ArrayList<>();
         }
+        List<PicInfo> result = CloneUtils.cloneObjectSer(data);
         mResult.clear();
         //需要防止对象引用
-        for (PicInfo cache : data) {
+        for (PicInfo cache : result) {
             PicInfo arg = new PicInfo();
             arg.setPath(cache.getPath());
             arg.setDirectory(cache.getDirectory());
             arg.setDirectoryCount(cache.getDirectoryCount());
             arg.setName(cache.getName());
+            arg.setSelect(cache.isSelect());
             mResult.add(arg);
         }
         notifyDataSetChanged();
@@ -146,7 +149,7 @@ public class PicSelAdapter extends RecyclerView.Adapter<PicSelAdapter.PicHolder>
                 @Override
                 public void onClick(View v) {
                     if (mOnClick != null) {
-                        mOnClick.click(mResult.get(position).getPath());
+                        mOnClick.click(mResult, position);
                     }
                 }
             });
@@ -174,7 +177,7 @@ public class PicSelAdapter extends RecyclerView.Adapter<PicSelAdapter.PicHolder>
     //点击事件
     public interface OnClickListener {
         //点击事件
-        void click(String directory);
+        void click(List<PicInfo> data, int pos);
 
         //check box事件
         void check();
