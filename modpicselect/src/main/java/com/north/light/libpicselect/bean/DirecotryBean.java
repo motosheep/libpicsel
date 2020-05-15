@@ -3,6 +3,7 @@ package com.north.light.libpicselect.bean;
 /**
  * create by lzt
  * data 2019/12/8
+ * 目录相关信息
  */
 public class DirecotryBean {
     private String name;//名字

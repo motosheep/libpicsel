@@ -30,7 +30,6 @@ public class PicSelectManager implements PicSelectApi {
     private static final String TAG = PicSelectManager.class.getName();
     private Context mContext;
     private volatile boolean isInit = false;
-//    private HandlerThread mIOThread;//io looper provider
     private Handler mIOHandler;//io handler
     private OnResultListener mCallBack;
 
@@ -54,10 +53,6 @@ public class PicSelectManager implements PicSelectApi {
             return;
         }
         if (isInit) return;
-//        if (mIOThread == null) {
-//            mIOThread = new HandlerThread("PicSelectManager_IOThread");
-//            mIOThread.start();
-//        }
         mIOHandler = new Handler();
         isInit = true;
         if (callBack != null) {
@@ -80,10 +75,6 @@ public class PicSelectManager implements PicSelectApi {
         if (mIOHandler != null) {
             mIOHandler.removeCallbacksAndMessages(null);
         }
-//        if (mIOThread != null) {
-//            mIOThread.getLooper().quit();
-//        }
-//        mIOThread = null;
         mIOHandler = null;
         isInit = false;
     }

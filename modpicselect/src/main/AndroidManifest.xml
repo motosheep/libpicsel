@@ -11,7 +11,7 @@
             android:theme="@android:style/Theme.Translucent.NoTitleBar" />
         <activity
             android:name=".ui.PicBrowserActivity"
-            android:theme="@style/Theme.Design.NoActionBar" />
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen" />
         <activity
             android:name=".ui.PicSelectActivity"
             android:theme="@style/Theme.Design.NoActionBar" />

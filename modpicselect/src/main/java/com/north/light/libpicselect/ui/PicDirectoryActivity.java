@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
@@ -15,6 +16,7 @@ import com.north.light.libpicselect.bean.DirecotryBean;
 import com.north.light.libpicselect.bean.DirecotryIntentInfo;
 import com.north.light.libpicselect.bean.PicInfo;
 import com.north.light.libpicselect.model.PicSelConfig;
+import com.north.light.libpicselect.utils.CloneUtils;
 import com.north.light.libpicselect.utils.PicScreenUtils;
 import com.north.light.libpicselect.widget.DialogItemDecoration;
 
@@ -33,6 +35,8 @@ public class PicDirectoryActivity extends PicBaseActivity {
     private RecyclerView mContent;
     private DirectoryDialogSelAdapter mAdapter;
     private Map<String, List<PicInfo>> data = new HashMap<>();
+    //根布局
+    private LinearLayout mRoot;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +59,7 @@ public class PicDirectoryActivity extends PicBaseActivity {
                 Toast.makeText(this.getApplicationContext(), "数据错误", Toast.LENGTH_SHORT).show();
                 finish();
             } else {
+                mRoot = findViewById(R.id.activity_pic_directory_root);
                 mContent = findViewById(R.id.activity_pic_directory_content);
                 mContent.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
                 mContent.addItemDecoration(new DialogItemDecoration(4));
@@ -82,6 +87,12 @@ public class PicDirectoryActivity extends PicBaseActivity {
                         finish();
                     }
                 });
+                mRoot.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        finish();
+                    }
+                });
                 //设置数据
                 setData(data);
             }
@@ -97,14 +108,8 @@ public class PicDirectoryActivity extends PicBaseActivity {
         //复制数据，防止引用
         this.data.clear();
         for (Map.Entry<String, List<PicInfo>> arg : data.entrySet()) {
-            PicInfo cache = new PicInfo();
             if (arg.getValue().size() != 0) {
-                cache.setName(arg.getValue().get(0).getName());
-                cache.setDirectoryCount(arg.getValue().get(0).getDirectoryCount());
-                cache.setDirectory(arg.getValue().get(0).getDirectory());
-                cache.setPath(arg.getValue().get(0).getPath());
-                List<PicInfo> picList = new ArrayList<>();
-                picList.add(cache);
+                List<PicInfo> picList = CloneUtils.cloneObjectSer(arg.getValue());
                 String key = arg.getKey();
                 this.data.put(key, picList);
             }

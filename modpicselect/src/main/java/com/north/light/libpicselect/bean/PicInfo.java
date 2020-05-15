@@ -2,12 +2,14 @@ package com.north.light.libpicselect.bean;
 
 import com.north.light.libpicselect.utils.PicDirectoryUtils;
 
+import java.io.Serializable;
+
 /**
  * create by lzt
  * data 2019/12/8
  * 图片的信息
  */
-public class PicInfo {
+public class PicInfo implements Serializable {
     private String name;//文件名
     private String path;//文件路径
     private String directory;//目录
