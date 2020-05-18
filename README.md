@@ -5,6 +5,14 @@
 
 #### 使用说明
 
+
+项目根目录build文件：需要加入
+
+maven { url "https://jitpack.io" }
+
+
+
+
 1.  图片加载配置
 
 
