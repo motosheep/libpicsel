@@ -145,7 +145,7 @@ public class PicSelAdapter extends RecyclerView.Adapter<PicSelAdapter.PicHolder>
                     }
                 }
             });
-            holder.mPLayout.setOnClickListener(new View.OnClickListener() {
+            holder.mImage.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     if (mOnClick != null) {
@@ -164,13 +164,11 @@ public class PicSelAdapter extends RecyclerView.Adapter<PicSelAdapter.PicHolder>
     public class PicHolder extends RecyclerView.ViewHolder {
         private ImageView mImage;
         private CheckBox mCheckBox;
-        private RelativeLayout mPLayout;
 
         public PicHolder(@NonNull View itemView) {
             super(itemView);
             mImage = itemView.findViewById(R.id.item_main_content_image);
             mCheckBox = itemView.findViewById(R.id.item_main_content_checkbox);
-            mPLayout = itemView.findViewById(R.id.item_main_content_pLayout);
         }
     }
 
