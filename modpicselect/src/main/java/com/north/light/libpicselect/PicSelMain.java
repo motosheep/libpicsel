@@ -1,18 +1,27 @@
 package com.north.light.libpicselect;
 
+import android.Manifest;
 import android.app.Activity;
+import android.content.ContentUris;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Environment;
+import android.provider.DocumentsContract;
 import android.provider.MediaStore;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.FileProvider;
 import android.util.Log;
 
 import com.north.light.libpicselect.model.PicSelConfig;
 import com.north.light.libpicselect.ui.PicBrowserActivity;
 import com.north.light.libpicselect.ui.PicSelectActivity;
+import com.north.light.libpicselect.ui.VideoRecordActivity;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -39,6 +48,7 @@ public class PicSelMain {
     private static final int TAKEPIC_RESULT = 0x1111;
     private static final int SELECTPIC_RESULT = 0x1112;
     private static final int CROPPIC_REQUEST = 0x1113;
+    private static final int VIDEOREC_RESULT = 0x1114;
     private static final String TAG = PicSelMain.class.getName();
 
     private Uri mCurUrl;//图片拍照url
@@ -86,6 +96,26 @@ public class PicSelMain {
             intent1.putExtra(PicSelectActivity.CODE_NEEDCAMERA, showCamera);
             activity.startActivityForResult(intent1, PicSelectActivity.CODE_REQUEST);
         }
+    }
+
+    /**
+     * 调起原生相机录制视频
+     * MediaStore.EXTRA_OUTPUT：设置媒体文件的保存路径。
+     * MediaStore.EXTRA_VIDEO_QUALITY：设置视频录制的质量，0为低质量，1为高质量。
+     * MediaStore.EXTRA_DURATION_LIMIT：设置视频最大允许录制的时长，单位为毫秒。
+     * MediaStore.EXTRA_SIZE_LIMIT：指定视频最大允许的尺寸，单位为byte。
+     *
+     * @return false没有权限 true有权限
+     */
+    public boolean recordVideo(Activity activity, int second, Context context) {
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
+                || ActivityCompat.checkSelfPermission(context, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            return false;
+        }
+        Intent intent1 = new Intent(activity, PicSelectActivity.class);
+        intent1.putExtra(VideoRecordActivity.CODE_RECODE_SECOND, second);
+        activity.startActivityForResult(intent1, VideoRecordActivity.CODE_REQUEST);
+        return true;
     }
 
     //调起相机拍照
@@ -204,6 +234,18 @@ public class PicSelMain {
                 Log.d(TAG, "添加图片返回e: " + e);
             }
         }
+        if (requestCode == VideoRecordActivity.CODE_REQUEST && resultCode == VideoRecordActivity.CODE_RESULT) {
+            Log.d(TAG, "录制视频返回");
+            try {
+                String path = data.getStringExtra(VideoRecordActivity.CODE_RECODE_PATH);
+                if (listener != null) {
+                    listener.recordVideoPath(path);
+                }
+            } catch (Exception e) {
+                Log.d(TAG, "添加图片返回e: " + e);
+            }
+        }
+
     }
 
     //浏览图片
@@ -224,6 +266,9 @@ public class PicSelMain {
 
         //剪裁图片
         void cropResult(String path);
+
+        //录制视频
+        void recordVideoPath(String path);
     }
 
     /**

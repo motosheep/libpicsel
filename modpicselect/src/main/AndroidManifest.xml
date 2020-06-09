@@ -7,6 +7,9 @@
 
     <application>
         <activity
+            android:name=".ui.VideoRecordActivity"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+        <activity
             android:name=".ui.PicDirectoryActivity"
             android:theme="@android:style/Theme.Translucent.NoTitleBar" />
         <activity

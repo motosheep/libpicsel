@@ -1,9 +1,13 @@
 package com.north.light.picsel;
 
 import android.content.Intent;
+import android.database.Cursor;
+import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 
@@ -12,8 +16,10 @@ import com.north.light.libpicselect.PicSelMain;
 import com.north.light.libpicselect.model.PicSelConfig;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
+    private static final String TAG = MainActivity.class.getName();
     ImageView img;
 
     @Override
@@ -26,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 //加载图片
-                PicSelMain.getIntance().getPicMul(false,MainActivity.this,5,true);
+                PicSelMain.getIntance().getPicMul(false, MainActivity.this, 5, true);
             }
         });
 
@@ -43,6 +49,24 @@ public class MainActivity extends AppCompatActivity {
                 Glide.with(MainActivity.this.getApplicationContext()).load(path).into(iv);
             }
         });
+
+        //test---------------------------------------------------------------------------------
+        Cursor cursor = getContentResolver().query(
+                MediaStore.Video.Media.EXTERNAL_CONTENT_URI, null, null, null, null);
+        while (cursor.moveToNext()) {
+            //获取图片的名称
+            String name = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DISPLAY_NAME));
+            if (TextUtils.isEmpty(name)) {
+                continue;
+            }
+            //日期
+            int date = cursor.getInt(cursor.getColumnIndex(MediaStore.Images.Media.DATE_MODIFIED));
+            //获取图片的生成日期
+            byte[] data = cursor.getBlob(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
+            Log.d(TAG, "数据:data1 " + date + "  data2: " + (new String(data, 0, data.length - 1)) + "  name:" + name);
+
+        }
+        //test---------------------------------------------------------------------------------
 
 
     }
