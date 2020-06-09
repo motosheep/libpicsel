@@ -68,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
         }
         //test---------------------------------------------------------------------------------
 
-
+        PicSelMain.getIntance().recordVideo(this, 10);
     }
 
     @Override
@@ -88,6 +88,12 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void cropResult(String path) {
                 Glide.with(MainActivity.this).load(path).into(img);
+            }
+
+            @Override
+            public void recordVideoPath(String path) {
+                Log.d(TAG, "recordVideoPath path: " + path);
+
             }
         });
     }

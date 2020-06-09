@@ -225,6 +225,11 @@ public class PicSelectActivity extends PicBaseActivity {
             public void cropResult(String path) {
 
             }
+
+            @Override
+            public void recordVideoPath(String path) {
+
+            }
         });
     }
 

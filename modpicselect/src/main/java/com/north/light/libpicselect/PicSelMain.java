@@ -107,12 +107,12 @@ public class PicSelMain {
      *
      * @return false没有权限 true有权限
      */
-    public boolean recordVideo(Activity activity, int second, Context context) {
-        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
-                || ActivityCompat.checkSelfPermission(context, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+    public boolean recordVideo(Activity activity, int second) {
+        if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
+                || ActivityCompat.checkSelfPermission(activity, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             return false;
         }
-        Intent intent1 = new Intent(activity, PicSelectActivity.class);
+        Intent intent1 = new Intent(activity, VideoRecordActivity.class);
         intent1.putExtra(VideoRecordActivity.CODE_RECODE_SECOND, second);
         activity.startActivityForResult(intent1, VideoRecordActivity.CODE_REQUEST);
         return true;
