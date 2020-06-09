@@ -74,5 +74,11 @@ maven { url "https://jitpack.io" }
  1修改图片浏览点击逻辑
 
 
+ 2增加视频录制入口
+
+
+ PicSelMain.getIntance().recordVideo(this, 10);
+
+
 
 
