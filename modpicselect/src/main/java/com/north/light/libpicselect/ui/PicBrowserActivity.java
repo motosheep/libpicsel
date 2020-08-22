@@ -18,6 +18,7 @@ import android.widget.Toast;
 
 
 import com.github.chrisbanes.photoview.PhotoView;
+import com.north.light.libpicselect.PicSelMain;
 import com.north.light.libpicselect.R;
 import com.north.light.libpicselect.bean.PicInfo;
 import com.north.light.libpicselect.bean.PicSelIntentInfo;
@@ -27,6 +28,10 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 图片浏览activity
+ * change by lzt 20200823 增加视频数据的适配
+ */
 public class PicBrowserActivity extends PicBaseActivity {
     public static final int CODE_REQUEST = 0x1101;
     public static final int CODE_RESULT = 0x1102;
@@ -48,6 +53,8 @@ public class PicBrowserActivity extends PicBaseActivity {
     private CheckBox mCheckBox;
     //选择提示
     private TextView mSelTips;
+    //播放按钮监听__播放功能，暂时只做本地视频播放适配
+    private ImageView mPlayBt;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +73,7 @@ public class PicBrowserActivity extends PicBaseActivity {
         mBack = findViewById(R.id.activity_pic_browser_back);
         mCheckBox = findViewById(R.id.activity_pic_browser_checkbox);
         mSelTips = findViewById(R.id.activity_pic_browser_tips);
+        mPlayBt = findViewById(R.id.activity_pic_browser_play_video);
         mSelTips.setText(String.format(getResources().getString(R.string.pic_select_activity_checkbox_count), 0, selLimit));
         if (isShowSelMode) {
             mCheckBox.setVisibility(View.VISIBLE);
@@ -74,15 +82,15 @@ public class PicBrowserActivity extends PicBaseActivity {
             mCheckBox.setVisibility(View.INVISIBLE);
             mSelTips.setVisibility(View.INVISIBLE);
         }
+        //监听事件
         mBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-               finish();
+                finish();
             }
         });
         for (String result : mDataList) {
             if (!TextUtils.isEmpty(result)) {
-                Log.d(TAG, "数据: " + result);
                 PhotoView photoView = new PhotoView(this);
                 mViewList.add(photoView);
             }
@@ -97,7 +105,9 @@ public class PicBrowserActivity extends PicBaseActivity {
             public void onPageSelected(int i) {
                 if (isShowSelMode) {
                     //选择模式，更新该图片选择状态
-                    final boolean isSel = PicSelIntentInfo.getInstance().isSel(mDataList.get(i));
+                    String path = mDataList.get(i);
+                    final boolean isSel = PicSelIntentInfo.getInstance().isSel(path);
+                    isVideo(path);
                     mCheckBox.setChecked(isSel);
                     updateSelCount();
                 }
@@ -116,14 +126,12 @@ public class PicBrowserActivity extends PicBaseActivity {
                         new PicSelIntentInfo.SelCountListener() {
                             @Override
                             public void selCount(int count) {
-                                Log.d(TAG, "sel count: " + count);
                                 //设置提示
                                 updateSelCount();
                             }
 
                             @Override
                             public void limit() {
-                                Log.d(TAG, "limit");
                                 mCheckBox.setChecked(false);
                                 Toast.makeText(PicBrowserActivity.this.getApplicationContext()
                                         , "最多只能选择" + selLimit + "张图片", Toast.LENGTH_SHORT).show();
@@ -131,8 +139,33 @@ public class PicBrowserActivity extends PicBaseActivity {
                         });
             }
         });
+        //播放按钮监听
+        mPlayBt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //播放视频
+                try {
+                    PicSelMain.getIntance().playLocalVideo(mDataList.get(mViewPager.getCurrentItem())
+                            , PicBrowserActivity.this);
+                } catch (Exception e) {
+                    Log.d(TAG, "mPlayBt e: " + e.getMessage());
+                }
+            }
+        });
         mViewPager.setAdapter(pagerAdapter);
         mViewPager.setCurrentItem(mBrowserPos);
+        //如果浏览的数据为第0个，则会出现无法触发viewpager滑动监听
+        if (isShowSelMode && mBrowserPos == 0) {
+            try {
+                String path = mDataList.get(0);
+                final boolean isSel = PicSelIntentInfo.getInstance().isSel(path);
+                isVideo(path);
+                mCheckBox.setChecked(isSel);
+                updateSelCount();
+            } catch (Exception e) {
+                Log.d(TAG, "设置默认选中逻辑error: " + e.getMessage());
+            }
+        }
     }
 
     //更新选中个数
@@ -182,7 +215,7 @@ public class PicBrowserActivity extends PicBaseActivity {
 
     @Override
     public void finish() {
-        if(isShowSelMode){
+        if (isShowSelMode) {
             setResult(CODE_RESULT);
         }
         super.finish();
@@ -204,6 +237,22 @@ public class PicBrowserActivity extends PicBaseActivity {
             intent.putExtra(PicBrowserActivity.CODE_SHOWSELMODE, true);
             intent.putExtra(PicBrowserActivity.CODE_SELLIMIT, selLimit);
             activity.startActivityForResult(intent, CODE_REQUEST);
+        }
+    }
+
+    /**
+     * 判断数据是否为视频
+     */
+    public void isVideo(String path) {
+        if (TextUtils.isEmpty(path)) {
+            return;
+        }
+        if (path.toLowerCase().contains(".mp4") || path.toLowerCase().contains(".3gp")
+                || path.toLowerCase().contains(".rmvb") || path.toLowerCase().contains(".flv")) {
+            //是视频
+            mPlayBt.setVisibility(View.VISIBLE);
+        } else {
+            mPlayBt.setVisibility(View.GONE);
         }
     }
 }

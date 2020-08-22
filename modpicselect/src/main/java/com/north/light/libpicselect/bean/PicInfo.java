@@ -7,7 +7,8 @@ import java.io.Serializable;
 /**
  * create by lzt
  * data 2019/12/8
- * 图片的信息
+ * 图片or视频的信息
+ * change by lzt 20200823 增加数据类型的变量
  */
 public class PicInfo implements Serializable {
     private String name;//文件名
@@ -16,15 +17,25 @@ public class PicInfo implements Serializable {
     private long directoryCount;//目录下文件个数
     private boolean isSelect = false;
     private int date;//日期__修改日期
+    private int source;//1图片 2视频
 
     public PicInfo() {
     }
 
-    public PicInfo(String name, String path, int date) {
+    public PicInfo(String name, String path, int date, int source) {
         this.name = name;
         this.path = path;
         this.directory = PicDirectoryUtils.getDirectory(path);
         this.date = date;
+        this.source = source;
+    }
+
+    public int getSource() {
+        return source;
+    }
+
+    public void setSource(int source) {
+        this.source = source;
     }
 
     public String getName() {

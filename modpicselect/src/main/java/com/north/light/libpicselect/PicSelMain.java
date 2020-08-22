@@ -99,6 +99,23 @@ public class PicSelMain {
     }
 
     /**
+     * 获取多个图片or视频
+     */
+    public void getPicVideoMul(boolean isTakeCamera, Activity activity, int size, boolean showCamera
+            , boolean showVideo) {
+        if (isTakeCamera) {
+            takePic(activity);
+        } else {
+            //进入三方图片选择
+            Intent intent1 = new Intent(activity, PicSelectActivity.class);
+            intent1.putExtra(PicSelectActivity.CODE_LIMIT, size);
+            intent1.putExtra(PicSelectActivity.CODE_NEEDCAMERA, showCamera);
+            intent1.putExtra(PicSelectActivity.CODE_SHOWVIDEO, showVideo);
+            activity.startActivityForResult(intent1, PicSelectActivity.CODE_REQUEST);
+        }
+    }
+
+    /**
      * 调起原生相机录制视频
      * MediaStore.EXTRA_OUTPUT：设置媒体文件的保存路径。
      * MediaStore.EXTRA_VIDEO_QUALITY：设置视频录制的质量，0为低质量，1为高质量。
@@ -256,6 +273,32 @@ public class PicSelMain {
         activity.startActivity(intent);
     }
 
+    //播放本地视频
+    public void playLocalVideo(String path, Activity activity) {
+        try {
+            WeakReference<Activity> weakAct = new WeakReference<Activity>(activity);
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            File file = new File(path);
+            Uri uri = null;
+            if (android.os.Build.VERSION.SDK_INT >= 24) {
+                //7.0以上的拍照
+                uri = FileProvider.getUriForFile(
+                        PicSelConfig.getInstance().getContext(),
+                        PicSelConfig.getInstance().getContext().getPackageName() + ".fileProvider", file);
+            } else {
+                //7.0以下的拍照
+                mCurUrl = Uri.fromFile(file);
+            }
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            intent.setDataAndType(uri, "video/*");
+            //进入拍照页
+            weakAct.get().startActivity(intent);
+        } catch (Exception e) {
+            Log.d(TAG, "播放视频异常： " + e);
+        }
+    }
+
     //接口回调
     public interface PicCallbackListener {
         //拍照
@@ -270,58 +313,4 @@ public class PicSelMain {
         //录制视频
         void recordVideoPath(String path);
     }
-
-    /**
-     * 保存方法
-     */
-    private void saveBitmap(Bitmap bm, String path) {
-        Log.e(TAG, "保存图片");
-        File f = new File(path);
-        if (f.exists()) {
-            f.delete();
-        }
-        try {
-            FileOutputStream out = new FileOutputStream(f);
-            bm.compress(Bitmap.CompressFormat.PNG, 90, out);
-            out.flush();
-            out.close();
-            Log.i(TAG, "已经保存");
-        } catch (FileNotFoundException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-    }
-
-    //图片压缩
-    private void compress(int inSampleSize, String path) {
-        File originFile = new File(path);
-        BitmapFactory.Options options = new BitmapFactory.Options();
-        //设置此参数是仅仅读取图片的宽高到options中，不会将整张图片读到内存中，防止oom
-        options.inJustDecodeBounds = true;
-        Bitmap emptyBitmap = BitmapFactory.decodeFile(originFile.getAbsolutePath(), options);
-        options.inJustDecodeBounds = false;
-        options.inSampleSize = inSampleSize;
-        Bitmap resultBitmap = BitmapFactory.decodeFile(originFile.getAbsolutePath(), options);
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        resultBitmap.compress(Bitmap.CompressFormat.JPEG, 100, bos);
-        try {
-            this.takePicPath = Environment.getExternalStorageDirectory() + "/pic/" + System.currentTimeMillis() + ".jpg";
-            FileOutputStream fos = new FileOutputStream(new File(this.takePicPath));
-            fos.write(bos.toByteArray());
-            fos.flush();
-            fos.close();
-            originFile.delete();
-            resultBitmap.recycle();
-            emptyBitmap.recycle();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-
 }

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
     android:id="@+id/item_main_content_pLayout"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
     <ImageView
@@ -20,4 +20,16 @@
         android:button="@null"
         android:paddingTop="6dp"
         android:paddingRight="2dp" />
+
+    <TextView
+        android:id="@+id/item_main_content_source"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="#99000000"
+        android:gravity="center"
+        android:paddingTop="4dp"
+        android:paddingBottom="4dp"
+        android:textColor="#ffffff"
+        android:textSize="12sp" />
 </RelativeLayout>

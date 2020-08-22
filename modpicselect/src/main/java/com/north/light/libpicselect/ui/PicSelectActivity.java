@@ -32,6 +32,7 @@ import java.util.Map;
 
 /**
  * 需要注意由于对象引用，导致数据错乱问题
+ * change by lzt 20200823 增加视频显示逻辑
  */
 public class PicSelectActivity extends PicBaseActivity {
     public static final int CODE_REQUEST = 0x0001;
@@ -39,6 +40,7 @@ public class PicSelectActivity extends PicBaseActivity {
     public static final String CODE_LIMIT = "PicSelectActivity_CODE_LIMIT";
     public static final String CODE_NEEDCAMERA = "PicSelectActivity_CODE_NEEDCAMERA";
     public static final String CODE_SHOWGIF = "PicSelectActivity_CODE_SHOWGIF";
+    public static final String CODE_SHOWVIDEO = "PicSelectActivity_CODE_SHOWVIDEO";
     public static final String CODE_SELECT = "PicSelectActivity_CODE_SELECT";
 
     private int mLimit = 9;
@@ -56,6 +58,7 @@ public class PicSelectActivity extends PicBaseActivity {
 
     private boolean isShowCamera;//是否显示相机图标
     private boolean isShowGif;//显示gif标识
+    private boolean isShowVideo;//显示视频标识
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,6 +72,7 @@ public class PicSelectActivity extends PicBaseActivity {
         mLimit = getIntent().getIntExtra(CODE_LIMIT, 9);//默认为九个
         isShowCamera = getIntent().getBooleanExtra(CODE_NEEDCAMERA, false);//相机显示标识
         isShowGif = getIntent().getBooleanExtra(CODE_SHOWGIF, false);//gif显示标识
+        isShowVideo = getIntent().getBooleanExtra(CODE_SHOWVIDEO, false);//视频显示标识
         if (mLimit > 9) mLimit = 9;
         mContent = findViewById(R.id.activity_pic_sel_recy);
         mBack = findViewById(R.id.activity_pic_sel_back);
@@ -123,8 +127,9 @@ public class PicSelectActivity extends PicBaseActivity {
         });
         mAdapter.setOnClickListener(new PicSelAdapter.OnClickListener() {
 
+            //source 1图片 2视频。如果选择图片，则进入多选模式，若选择视频，则进入播放模式
             @Override
-            public void click(List<PicInfo> data, int pos) {
+            public void click(List<PicInfo> data, int pos, int source) {
                 if (data != null && data.size() != 0) {
                     List<String> result = new ArrayList<>();
                     List<PicInfo> local = CloneUtils.cloneObjectSer(data);
@@ -132,7 +137,7 @@ public class PicSelectActivity extends PicBaseActivity {
                     for (PicInfo cache : data) {
                         result.add(cache.getPath());
                     }
-                    PicBrowserActivity.launch(PicSelectActivity.this,result,pos,mLimit);
+                    PicBrowserActivity.launch(PicSelectActivity.this, result, pos, mLimit);
                 }
             }
 
@@ -178,7 +183,7 @@ public class PicSelectActivity extends PicBaseActivity {
 
             }
         });
-        PicSelectManager.getInstance().load(isShowGif);
+        PicSelectManager.getInstance().load(isShowGif, isShowVideo);
     }
 
     @Override
@@ -193,11 +198,11 @@ public class PicSelectActivity extends PicBaseActivity {
             }
             updateSelCount();
         }
-        if(requestCode==PicBrowserActivity.CODE_REQUEST&&resultCode==PicBrowserActivity.CODE_RESULT){
-            if(mAdapter!=null){
-                for(int i=0;i<PicSelIntentInfo.getInstance().getPicSelList().size();i++){
-                    if(PicSelIntentInfo.getInstance().getPicSelList().get(i).isSelect()){
-                        Log.d("PicSel","pic sel: " + i);
+        if (requestCode == PicBrowserActivity.CODE_REQUEST && resultCode == PicBrowserActivity.CODE_RESULT) {
+            if (mAdapter != null) {
+                for (int i = 0; i < PicSelIntentInfo.getInstance().getPicSelList().size(); i++) {
+                    if (PicSelIntentInfo.getInstance().getPicSelList().get(i).isSelect()) {
+                        Log.d("PicSel", "pic sel: " + i);
                     }
                 }
                 mAdapter.setData(PicSelIntentInfo.getInstance().getPicSelList());
@@ -243,9 +248,9 @@ public class PicSelectActivity extends PicBaseActivity {
 
     /**
      * 更新选中个数
-     * */
-    private void updateSelCount(){
-        if(mAdapter!=null){
+     */
+    private void updateSelCount() {
+        if (mAdapter != null) {
             int selSize = mAdapter.getSelectInfo().size();
             mConfirm.setText(String.format(getResources().getString(R.string.pic_select_activity_checkbox_count),
                     selSize, mLimit));

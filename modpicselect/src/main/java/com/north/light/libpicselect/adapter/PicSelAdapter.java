@@ -1,20 +1,17 @@
 package com.north.light.libpicselect.adapter;
 
-import android.app.Activity;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
-
 
 import com.north.light.libpicselect.R;
 import com.north.light.libpicselect.bean.PicInfo;
@@ -27,6 +24,8 @@ import java.util.List;
 /**
  * create by lzt
  * data 2019/12/8
+ * <p>
+ * change by lzt 20200823 增加视频数据源显示适配
  */
 public class PicSelAdapter extends RecyclerView.Adapter<PicSelAdapter.PicHolder> {
     private Context mContext;
@@ -63,6 +62,7 @@ public class PicSelAdapter extends RecyclerView.Adapter<PicSelAdapter.PicHolder>
             arg.setDirectoryCount(cache.getDirectoryCount());
             arg.setName(cache.getName());
             arg.setSelect(cache.isSelect());
+            arg.setSource(cache.getSource());
             mResult.add(arg);
         }
         notifyDataSetChanged();
@@ -104,6 +104,7 @@ public class PicSelAdapter extends RecyclerView.Adapter<PicSelAdapter.PicHolder>
                     }
                 }
             });
+            holder.mSource.setVisibility(View.GONE);
         } else {
             final int position = isShowCamera ? (i - 1) : i;
             holder.mCheckBox.setVisibility(View.VISIBLE);
@@ -117,6 +118,15 @@ public class PicSelAdapter extends RecyclerView.Adapter<PicSelAdapter.PicHolder>
                 holder.mCheckBox.setChecked(true);
             } else {
                 holder.mCheckBox.setChecked(false);
+            }
+            //数据源判断
+            if(mResult.get(position).getSource() == 2){
+                //视频源
+                holder.mSource.setText("视频");
+                holder.mSource.setVisibility(View.VISIBLE);
+            }else{
+                //非视频源
+                holder.mSource.setVisibility(View.GONE);
             }
             holder.mCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
@@ -149,7 +159,8 @@ public class PicSelAdapter extends RecyclerView.Adapter<PicSelAdapter.PicHolder>
                 @Override
                 public void onClick(View v) {
                     if (mOnClick != null) {
-                        mOnClick.click(mResult, position);
+                        //区分点击的是图片还是视频
+                        mOnClick.click(mResult, position,mResult.get(position).getSource());
                     }
                 }
             });
@@ -164,18 +175,21 @@ public class PicSelAdapter extends RecyclerView.Adapter<PicSelAdapter.PicHolder>
     public class PicHolder extends RecyclerView.ViewHolder {
         private ImageView mImage;
         private CheckBox mCheckBox;
+        //数据源
+        private TextView mSource;
 
         public PicHolder(@NonNull View itemView) {
             super(itemView);
             mImage = itemView.findViewById(R.id.item_main_content_image);
             mCheckBox = itemView.findViewById(R.id.item_main_content_checkbox);
+            mSource = itemView.findViewById(R.id.item_main_content_source);
         }
     }
 
     //点击事件
     public interface OnClickListener {
-        //点击事件
-        void click(List<PicInfo> data, int pos);
+        //点击事件__20200823增加数据源入参
+        void click(List<PicInfo> data, int pos,int source);
 
         //check box事件
         void check();

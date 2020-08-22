@@ -29,10 +29,10 @@
         <CheckBox
             android:id="@+id/activity_pic_browser_checkbox"
             android:layout_width="wrap_content"
-            android:layout_centerInParent="true"
             android:layout_height="wrap_content"
-            android:layout_marginRight="10dp"
             android:layout_alignParentRight="true"
+            android:layout_centerInParent="true"
+            android:layout_marginRight="10dp"
             android:background="@drawable/selector_pic_select"
             android:button="@null"
             android:paddingTop="6dp"
@@ -51,5 +51,13 @@
             android:textSize="14sp" />
     </RelativeLayout>
 
+    <!--视频播放按钮-->
+    <ImageView
+        android:id="@+id/activity_pic_browser_play_video"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_centerInParent="true"
+        android:src="@drawable/ic_lib_pic_sel_play"
+        android:visibility="gone" />
 
 </RelativeLayout>

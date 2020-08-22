@@ -54,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
         Cursor cursor = getContentResolver().query(
                 MediaStore.Video.Media.EXTERNAL_CONTENT_URI, null, null, null, null);
         while (cursor.moveToNext()) {
-            //获取图片的名称
+            //获取视频的名称
             String name = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DISPLAY_NAME));
             if (TextUtils.isEmpty(name)) {
                 continue;
@@ -67,8 +67,8 @@ public class MainActivity extends AppCompatActivity {
 
         }
         //test---------------------------------------------------------------------------------
-
-        PicSelMain.getIntance().recordVideo(this, 10);
+        PicSelMain.getIntance().getPicVideoMul(false,this,9,true,true);
+//        PicSelMain.getIntance().recordVideo(this, 10);
     }
 
     @Override

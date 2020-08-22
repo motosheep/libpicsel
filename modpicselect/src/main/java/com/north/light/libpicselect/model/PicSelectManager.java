@@ -9,6 +9,7 @@ import android.os.HandlerThread;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.text.TextUtils;
+import android.util.Log;
 
 
 import com.north.light.libpicselect.bean.PicInfo;
@@ -34,6 +35,8 @@ public class PicSelectManager implements PicSelectApi {
     private OnResultListener mCallBack;
     //是否显示gid
     private boolean isShowGif = false;
+    //是否显示视频
+    private boolean isShowVideo = false;
 
     private static final class SingleHolder {
         static final PicSelectManager mInstance = new PicSelectManager();
@@ -62,11 +65,15 @@ public class PicSelectManager implements PicSelectApi {
         }
     }
 
+    /**
+     * change by lzt  20200823增加是否显示视频的标识
+     * */
     @Override
-    public void load(boolean isShowGif) {
+    public void load(boolean isShowGif,boolean isShowVideo) {
         if (!isInit) {
             return;
         }
+        this.isShowVideo = isShowVideo;
         this.isShowGif = isShowGif;
         mIOHandler.removeCallbacksAndMessages(null);
         mIOHandler.post(loadRunnable);
@@ -95,14 +102,15 @@ public class PicSelectManager implements PicSelectApi {
      * change by lzt 20200515 增加是否过滤gif的处理逻辑
      */
     private void loadDataByCursor() {
-        Cursor cursor = mContext.getContentResolver().query(
+        //获取图片数据
+        Cursor picCursor = mContext.getContentResolver().query(
                 MediaStore.Images.Media.EXTERNAL_CONTENT_URI, null, null, null, null);
         List<String> picName = new ArrayList();
         List<String> picFileName = new ArrayList();
         List<Integer> picDate = new ArrayList<>();
-        while (cursor.moveToNext()) {
+        while (picCursor.moveToNext()) {
             //获取图片的名称
-            String name = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DISPLAY_NAME));
+            String name = picCursor.getString(picCursor.getColumnIndex(MediaStore.Images.Media.DISPLAY_NAME));
             if (TextUtils.isEmpty(name)) {
                 continue;
             } else {
@@ -112,17 +120,48 @@ public class PicSelectManager implements PicSelectApi {
                 }
             }
             //日期
-            int date = cursor.getInt(cursor.getColumnIndex(MediaStore.Images.Media.DATE_MODIFIED));
+            int date = picCursor.getInt(picCursor.getColumnIndex(MediaStore.Images.Media.DATE_MODIFIED));
             //获取图片的生成日期
-            byte[] data = cursor.getBlob(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
+            byte[] data = picCursor.getBlob(picCursor.getColumnIndex(MediaStore.Images.Media.DATA));
             //获取图片的详细信息
             picName.add(name);
             picDate.add(date);
             picFileName.add(new String(data, 0, data.length - 1));
         }
+
         List<PicInfo> result = new ArrayList<>();
+
+        //获取视频数据
+        if(isShowVideo){
+            List<String> videoName = new ArrayList();
+            List<String> videoFileName = new ArrayList();
+            List<Integer> videoDate = new ArrayList<>();
+            Cursor videoCursor = mContext.getContentResolver().query(
+                    MediaStore.Video.Media.EXTERNAL_CONTENT_URI, null, null, null, null);
+            while (videoCursor.moveToNext()) {
+                //获取视频的名称
+                String name = videoCursor.getString(videoCursor.getColumnIndex(MediaStore.Images.Media.DISPLAY_NAME));
+                if (TextUtils.isEmpty(name)) {
+                    continue;
+                }
+                //日期
+                int date = videoCursor.getInt(videoCursor.getColumnIndex(MediaStore.Images.Media.DATE_MODIFIED));
+                //获取视频的生成日期
+                byte[] data = videoCursor.getBlob(videoCursor.getColumnIndex(MediaStore.Images.Media.DATA));
+                videoName.add(name);
+                videoDate.add(date);
+                videoFileName.add(new String(data, 0, data.length - 1));
+            }
+            //合并数据__视频
+            for (int i = 0; i < videoName.size(); i++) {
+                PicInfo info = new PicInfo(videoName.get(i), videoFileName.get(i), videoDate.get(i),2);
+                result.add(info);
+            }
+        }
+
+        //合并数据__图片
         for (int i = 0; i < picName.size(); i++) {
-            PicInfo info = new PicInfo(picName.get(i), picFileName.get(i), picDate.get(i));
+            PicInfo info = new PicInfo(picName.get(i), picFileName.get(i), picDate.get(i),1);
             result.add(info);
         }
         //统计目录下文件个数
