@@ -32,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 //加载图片
-                PicSelMain.getIntance().getPicMul(false, MainActivity.this, 5, true);
+                PicSelMain.getInstance().getPicMul(false, MainActivity.this, 5, true);
             }
         });
 
@@ -67,14 +67,14 @@ public class MainActivity extends AppCompatActivity {
 
         }
         //test---------------------------------------------------------------------------------
-        PicSelMain.getIntance().getPicVideoMul(false,this,9,true,true);
+        PicSelMain.getInstance().getPicVideoMul(false,this,9,true,true);
 //        PicSelMain.getIntance().recordVideo(this, 10);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        PicSelMain.getIntance().ActivityForResult(requestCode, resultCode, data, new PicSelMain.PicCallbackListener() {
+        PicSelMain.getInstance().ActivityForResult(requestCode, resultCode, data, new PicSelMain.PicCallbackListener() {
             @Override
             public void cameraResult(String path) {
                 Glide.with(MainActivity.this).load(path).into(img);

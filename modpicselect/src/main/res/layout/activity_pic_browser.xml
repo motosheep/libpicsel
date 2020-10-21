@@ -60,4 +60,17 @@
         android:src="@drawable/ic_lib_pic_sel_play"
         android:visibility="gone" />
 
+    <TextView
+        android:id="@+id/activity_pic_browser_confirm"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginRight="10dp"
+        android:layout_marginBottom="20dp"
+        android:background="@color/color_FFFFFF"
+        android:padding="6dp"
+        android:text="@string/activity_pic_browser_confirm"
+        android:textColor="@color/color_000000" />
+
 </RelativeLayout>

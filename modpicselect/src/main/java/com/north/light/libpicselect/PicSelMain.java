@@ -2,32 +2,24 @@ package com.north.light.libpicselect;
 
 import android.Manifest;
 import android.app.Activity;
-import android.content.ContentUris;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
-import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.FileProvider;
 import android.util.Log;
 
+import com.north.light.libpicselect.constant.PicConstant;
 import com.north.light.libpicselect.model.PicSelConfig;
 import com.north.light.libpicselect.ui.PicBrowserActivity;
 import com.north.light.libpicselect.ui.PicSelectActivity;
 import com.north.light.libpicselect.ui.VideoRecordActivity;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.Serializable;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -42,6 +34,7 @@ import static android.app.Activity.RESULT_OK;
  * <p>
  * 使用该类前，必须调用图片加载函数，选择加载的方式
  * 使用该类时，必须调用init函数
+ * change by lzt 20201020 修改传入的浏览图片对象，保存在内存中，不再以intent形式传递，否则会报TransactionTooLargeException
  */
 
 public class PicSelMain {
@@ -60,7 +53,7 @@ public class PicSelMain {
         private static final PicSelMain mInstance = new PicSelMain();
     }
 
-    public static PicSelMain getIntance() {
+    public static PicSelMain getInstance() {
         return SingleHolder.mInstance;
     }
 
@@ -72,7 +65,7 @@ public class PicSelMain {
      */
     public void getPicSingle(boolean isTakeCamera, Activity activity, boolean showCamera) {
         if (isTakeCamera) {
-            takePic(activity);
+            takePic(activity, 0);
         } else {
             //进入三方图片选择
             Intent intent1 = new Intent(activity, PicSelectActivity.class);
@@ -83,12 +76,20 @@ public class PicSelMain {
     }
 
     /**
+     * 获取图片--前置拍照
+     * 单个
+     */
+    public void getFontPic(Activity activity) {
+        takePic(activity, 1);
+    }
+
+    /**
      * 获取图片
      * 多个
      */
     public void getPicMul(boolean isTakeCamera, Activity activity, int size, boolean showCamera) {
         if (isTakeCamera) {
-            takePic(activity);
+            takePic(activity, 0);
         } else {
             //进入三方图片选择
             Intent intent1 = new Intent(activity, PicSelectActivity.class);
@@ -104,7 +105,7 @@ public class PicSelMain {
     public void getPicVideoMul(boolean isTakeCamera, Activity activity, int size, boolean showCamera
             , boolean showVideo) {
         if (isTakeCamera) {
-            takePic(activity);
+            takePic(activity, 0);
         } else {
             //进入三方图片选择
             Intent intent1 = new Intent(activity, PicSelectActivity.class);
@@ -136,7 +137,9 @@ public class PicSelMain {
     }
 
     //调起相机拍照
-    public void takePic(Activity activity) {
+    //change by lzt 20200922 增加是否打开前置摄像头的入参
+    //type:1打开前置
+    public void takePic(Activity activity, int type) {
         try {
             WeakReference<Activity> weakAct = new WeakReference<Activity>(activity);
             Intent intent = new Intent();
@@ -145,7 +148,7 @@ public class PicSelMain {
             if (!file.getParentFile().exists()) {
                 file.getParentFile().mkdirs();
             }
-            if (android.os.Build.VERSION.SDK_INT >= 24) {
+            if (Build.VERSION.SDK_INT >= 24) {
                 //7.0以上的拍照
                 mCurUrl = FileProvider.getUriForFile(
                         PicSelConfig.getInstance().getContext(),
@@ -153,11 +156,17 @@ public class PicSelMain {
                 intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION); //添加这一句表示对目标应用临时授权该Uri所代表的文件
                 intent.setAction(MediaStore.ACTION_IMAGE_CAPTURE);//设置Action为拍照
                 intent.putExtra(MediaStore.EXTRA_OUTPUT, mCurUrl);//将拍取的照片保存到指定URI
+                if (type == 1) {
+                    intent.putExtra("android.intent.extras.CAMERA_FACING", 1);
+                }
             } else {
                 //7.0以下的拍照
                 mCurUrl = Uri.fromFile(file);
                 intent.setAction(MediaStore.ACTION_IMAGE_CAPTURE);//设置Action为拍照
                 intent.putExtra(MediaStore.EXTRA_OUTPUT, mCurUrl);//将拍取的照片保存到指定URI
+                if (type == 1) {
+                    intent.putExtra("android.intent.extras.CAMERA_FACING", 1);
+                }
             }
             //进入拍照页
             weakAct.get().startActivityForResult(intent, TAKEPIC_RESULT);
@@ -187,7 +196,7 @@ public class PicSelMain {
             //隐式intent
             Intent intent = new Intent("com.android.camera.action.CROP");
             Uri inputUrl = null;
-            if (android.os.Build.VERSION.SDK_INT >= 24) {
+            if (Build.VERSION.SDK_INT >= 24) {
                 inputUrl = FileProvider.getUriForFile(
                         PicSelConfig.getInstance().getContext(),
                         PicSelConfig.getInstance().getContext().getPackageName() + ".fileProvider", new File(filePath));
@@ -267,8 +276,11 @@ public class PicSelMain {
 
     //浏览图片
     public void browsePic(List<String> picList, Activity activity, int pos) {
+        if (picList == null || picList.size() == 0) {
+            return;
+        }
         Intent intent = new Intent(activity, PicBrowserActivity.class);
-        intent.putExtra(PicBrowserActivity.CODE_BROWSERLIST, (Serializable) picList);
+        PicConstant.getInstance().setPicList(picList);
         intent.putExtra(PicBrowserActivity.CODE_BROWSERPOS, pos);
         activity.startActivity(intent);
     }
@@ -280,7 +292,7 @@ public class PicSelMain {
             Intent intent = new Intent(Intent.ACTION_VIEW);
             File file = new File(path);
             Uri uri = null;
-            if (android.os.Build.VERSION.SDK_INT >= 24) {
+            if (Build.VERSION.SDK_INT >= 24) {
                 //7.0以上的拍照
                 uri = FileProvider.getUriForFile(
                         PicSelConfig.getInstance().getContext(),

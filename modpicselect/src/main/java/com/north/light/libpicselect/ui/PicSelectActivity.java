@@ -11,13 +11,13 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-
 import com.north.light.libpicselect.PicSelMain;
 import com.north.light.libpicselect.R;
 import com.north.light.libpicselect.adapter.PicSelAdapter;
 import com.north.light.libpicselect.bean.DirecotryIntentInfo;
 import com.north.light.libpicselect.bean.PicInfo;
 import com.north.light.libpicselect.bean.PicSelIntentInfo;
+import com.north.light.libpicselect.constant.PicConstant;
 import com.north.light.libpicselect.model.PicSelConfig;
 import com.north.light.libpicselect.model.PicSelectApi;
 import com.north.light.libpicselect.model.PicSelectManager;
@@ -137,7 +137,9 @@ public class PicSelectActivity extends PicBaseActivity {
                     for (PicInfo cache : data) {
                         result.add(cache.getPath());
                     }
-                    PicBrowserActivity.launch(PicSelectActivity.this, result, pos, mLimit);
+                    //赋值对象到内存中
+                    PicConstant.getInstance().setPicList(result);
+                    PicBrowserActivity.launch(PicSelectActivity.this, pos, mLimit);
                 }
             }
 
@@ -150,7 +152,7 @@ public class PicSelectActivity extends PicBaseActivity {
             @Override
             public void camera() {
                 //拍照
-                PicSelMain.getIntance().takePic(PicSelectActivity.this);
+                PicSelMain.getInstance().takePic(PicSelectActivity.this,0);
             }
         });
         PicSelectManager.getInstance().setOnResultListener(new PicSelectManager.OnResultListener() {
@@ -198,6 +200,7 @@ public class PicSelectActivity extends PicBaseActivity {
             }
             updateSelCount();
         }
+        //全屏页面，普通返回
         if (requestCode == PicBrowserActivity.CODE_REQUEST && resultCode == PicBrowserActivity.CODE_RESULT) {
             if (mAdapter != null) {
                 for (int i = 0; i < PicSelIntentInfo.getInstance().getPicSelList().size(); i++) {
@@ -209,7 +212,26 @@ public class PicSelectActivity extends PicBaseActivity {
                 updateSelCount();
             }
         }
-        PicSelMain.getIntance().ActivityForResult(requestCode, resultCode, data, new PicSelMain.PicCallbackListener() {
+        //全屏页面，确认返回
+        if (requestCode == PicBrowserActivity.CODE_REQUEST && resultCode == PicBrowserActivity.CODE_RESULT_CONFIRM) {
+            if (mAdapter != null) {
+                for (int i = 0; i < PicSelIntentInfo.getInstance().getPicSelList().size(); i++) {
+                    if (PicSelIntentInfo.getInstance().getPicSelList().get(i).isSelect()) {
+                        Log.d("PicSel", "pic sel: " + i);
+                    }
+                }
+                mAdapter.setData(PicSelIntentInfo.getInstance().getPicSelList());
+                updateSelCount();
+                //设置返回结果
+                if (mAdapter != null) {
+                    Intent result = new Intent();
+                    result.putExtra(CODE_SELECT, (Serializable) mAdapter.getSelectInfo());
+                    setResult(CODE_RESULT, result);
+                }
+                finish();
+            }
+        }
+        PicSelMain.getInstance().ActivityForResult(requestCode, resultCode, data, new PicSelMain.PicCallbackListener() {
             @Override
             public void cameraResult(String path) {
                 //拍照回调

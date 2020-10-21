@@ -11,17 +11,15 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-
 import com.github.chrisbanes.photoview.PhotoView;
 import com.north.light.libpicselect.PicSelMain;
 import com.north.light.libpicselect.R;
-import com.north.light.libpicselect.bean.PicInfo;
 import com.north.light.libpicselect.bean.PicSelIntentInfo;
+import com.north.light.libpicselect.constant.PicConstant;
 import com.north.light.libpicselect.model.PicSelConfig;
 
 import java.io.Serializable;
@@ -31,12 +29,14 @@ import java.util.List;
 /**
  * 图片浏览activity
  * change by lzt 20200823 增加视频数据的适配
+ * change by lzt 20201013 增加选择确定按钮
+ * change by lzt 20201020 修改图片数据重内存获取
  */
 public class PicBrowserActivity extends PicBaseActivity {
     public static final int CODE_REQUEST = 0x1101;
     public static final int CODE_RESULT = 0x1102;
+    public static final int CODE_RESULT_CONFIRM = 0x1103;
 
-    public static final String CODE_BROWSERLIST = "CODE_BROWSERLIST";
     public static final String CODE_BROWSERPOS = "CODE_BROWSERPOS";
     public static final String CODE_SHOWSELMODE = "CODE_SHOWSELMODE";
     public static final String CODE_SELLIMIT = "CODE_SELLIMIT";
@@ -55,6 +55,8 @@ public class PicBrowserActivity extends PicBaseActivity {
     private TextView mSelTips;
     //播放按钮监听__播放功能，暂时只做本地视频播放适配
     private ImageView mPlayBt;
+    //选择图片确定控件
+    private TextView mConfirm;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,10 +69,11 @@ public class PicBrowserActivity extends PicBaseActivity {
         //是否开启选择模式
         isShowSelMode = getIntent().getBooleanExtra(CODE_SHOWSELMODE, false);
         selLimit = getIntent().getIntExtra(CODE_SELLIMIT, 9);
-        mDataList = getIntent().getStringArrayListExtra(CODE_BROWSERLIST);
+        mDataList = PicConstant.getInstance().getPicList();
         mBrowserPos = getIntent().getIntExtra(CODE_BROWSERPOS, 0);
         mViewPager = findViewById(R.id.activity_pic_browser_viewpager);
         mBack = findViewById(R.id.activity_pic_browser_back);
+        mConfirm = findViewById(R.id.activity_pic_browser_confirm);
         mCheckBox = findViewById(R.id.activity_pic_browser_checkbox);
         mSelTips = findViewById(R.id.activity_pic_browser_tips);
         mPlayBt = findViewById(R.id.activity_pic_browser_play_video);
@@ -78,15 +81,24 @@ public class PicBrowserActivity extends PicBaseActivity {
         if (isShowSelMode) {
             mCheckBox.setVisibility(View.VISIBLE);
             mSelTips.setVisibility(View.VISIBLE);
+            mConfirm.setVisibility(View.VISIBLE);
         } else {
             mCheckBox.setVisibility(View.INVISIBLE);
             mSelTips.setVisibility(View.INVISIBLE);
+            mConfirm.setVisibility(View.INVISIBLE);
         }
         //监听事件
+        mConfirm.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //确定
+                finishPage(2);
+            }
+        });
         mBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                finish();
+                finishPage(1);
             }
         });
         for (String result : mDataList) {
@@ -145,7 +157,7 @@ public class PicBrowserActivity extends PicBaseActivity {
             public void onClick(View v) {
                 //播放视频
                 try {
-                    PicSelMain.getIntance().playLocalVideo(mDataList.get(mViewPager.getCurrentItem())
+                    PicSelMain.getInstance().playLocalVideo(mDataList.get(mViewPager.getCurrentItem())
                             , PicBrowserActivity.this);
                 } catch (Exception e) {
                     Log.d(TAG, "mPlayBt e: " + e.getMessage());
@@ -213,31 +225,32 @@ public class PicBrowserActivity extends PicBaseActivity {
 
     };
 
-    @Override
-    public void finish() {
+    //结束页面
+    private void finishPage(int mode) {
         if (isShowSelMode) {
-            setResult(CODE_RESULT);
+            if (mode == 1) {
+                setResult(CODE_RESULT);
+            } else if (mode == 2) {
+                setResult(CODE_RESULT_CONFIRM);
+            }
         }
-        super.finish();
+        finish();
     }
 
     @Override
     public void onBackPressed() {
-        finish();
+        finishPage(1);
     }
 
     /**
-     * 指定图片位置的方法
+     * 指定图片位置的方法--内部
      */
-    public static void launch(Activity activity, List<String> data, int position, int selLimit) {
-        if (data != null && data.size() != 0) {
-            Intent intent = new Intent(activity, PicBrowserActivity.class);
-            intent.putExtra(PicBrowserActivity.CODE_BROWSERLIST, (Serializable) data);
-            intent.putExtra(PicBrowserActivity.CODE_BROWSERPOS, position);
-            intent.putExtra(PicBrowserActivity.CODE_SHOWSELMODE, true);
-            intent.putExtra(PicBrowserActivity.CODE_SELLIMIT, selLimit);
-            activity.startActivityForResult(intent, CODE_REQUEST);
-        }
+    public static void launch(Activity activity, int position, int selLimit) {
+        Intent intent = new Intent(activity, PicBrowserActivity.class);
+        intent.putExtra(PicBrowserActivity.CODE_BROWSERPOS, position);
+        intent.putExtra(PicBrowserActivity.CODE_SHOWSELMODE, true);
+        intent.putExtra(PicBrowserActivity.CODE_SELLIMIT, selLimit);
+        activity.startActivityForResult(intent, CODE_REQUEST);
     }
 
     /**
