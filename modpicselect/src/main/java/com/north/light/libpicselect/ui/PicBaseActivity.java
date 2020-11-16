@@ -9,7 +9,6 @@ import android.support.annotation.Nullable;
 import android.view.Window;
 import android.view.WindowManager;
 
-
 import com.north.light.libpicselect.R;
 
 /**

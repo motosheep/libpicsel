@@ -1,5 +1,7 @@
 package com.north.light.libpicselect.constant;
 
+import android.os.Environment;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -10,6 +12,11 @@ import java.util.List;
  * 描述：图片内存缓存类
  */
 public class PicConstant implements Serializable {
+    private String mCameraPath = Environment.getExternalStorageDirectory() + "/pic/camera/";
+    private String mCropPath = Environment.getExternalStorageDirectory() + "/pic/crop/";
+    private String mCopyPath = Environment.getExternalStorageDirectory() + "/pic/copy/";
+
+
     private static class SingleHolder implements Serializable {
         static final PicConstant instance = new PicConstant();
     }
@@ -27,6 +34,23 @@ public class PicConstant implements Serializable {
 
     public void setPicList(List<String> picList) {
         this.picList.clear();
-        this.picList = picList;
+        if (picList == null || picList.size() == 0) {
+            return;
+        }
+        for (String pic : picList) {
+            this.picList.add(pic);
+        }
+    }
+
+    public String getCameraPath() {
+        return mCameraPath;
+    }
+
+    public String getCopyPath() {
+        return mCopyPath;
+    }
+
+    public String getCropPath() {
+        return mCropPath;
     }
 }

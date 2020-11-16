@@ -1,7 +1,6 @@
 package com.north.light.libpicselect.utils;
 
 import android.text.TextUtils;
-import android.util.Log;
 
 /**
  * create by lzt

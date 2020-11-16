@@ -3,6 +3,8 @@ package com.north.light.libpicselect.model;
 import android.content.Context;
 import android.widget.ImageView;
 
+import com.north.light.libpicselect.utils.HandlerManager;
+
 /**
  * create by lzt
  * data 2019/12/8
@@ -25,6 +27,10 @@ public class PicSelConfig {
     public void setLoaderManager(Context context,BindImageViewListener bindListener) {
         this.mbindListener = bindListener;
         this.mContext = context.getApplicationContext();
+        //初始化线程
+        HandlerManager.getInstance().init();
+        //初始化后，删除复制的图片/拍照缓存图片的目录
+        HandlerManager.getInstance().clearCache();
     }
 
     public interface BindImageViewListener {

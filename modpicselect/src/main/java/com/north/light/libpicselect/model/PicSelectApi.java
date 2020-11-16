@@ -14,7 +14,7 @@ public interface PicSelectApi {
     /**
      * change by lzt  20200823增加是否显示视频的标识
      * */
-    void load(boolean isShowGif,boolean isShowVideo);
+    void load(boolean isShowGif, boolean isShowVideo);
 
     void release();
 

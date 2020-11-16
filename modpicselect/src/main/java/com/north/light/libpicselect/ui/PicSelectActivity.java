@@ -169,8 +169,13 @@ public class PicSelectActivity extends PicBaseActivity {
             }
 
             @Override
-            public void FilterData(Map<String, List<PicInfo>> filterMap) {
-                mFilterData = filterMap;
+            public void FilterData(final Map<String, List<PicInfo>> filterMap) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mFilterData = filterMap;
+                    }
+                });
             }
         });
         PicSelectManager.getInstance().init(this, new PicSelectApi.InitCallBack() {

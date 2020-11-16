@@ -189,7 +189,7 @@ public class PicSelAdapter extends RecyclerView.Adapter<PicSelAdapter.PicHolder>
     //点击事件
     public interface OnClickListener {
         //点击事件__20200823增加数据源入参
-        void click(List<PicInfo> data, int pos,int source);
+        void click(List<PicInfo> data, int pos, int source);
 
         //check box事件
         void check();

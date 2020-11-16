@@ -2,12 +2,18 @@ package com.north.light.libpicselect.utils;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 
 /**
  * Created by lzt
@@ -19,7 +25,7 @@ public class CloneUtils {
 
     /**
      * 传入对象需要实现Serializable
-     * */
+     */
     public static <T> T cloneObjectSer(T obj) {
         T result = null;
         ByteArrayOutputStream byteArrayOutputStream = null;
@@ -59,7 +65,7 @@ public class CloneUtils {
 
     /**
      * 传入对象需要实现Parcelable
-     * */
+     */
     public static <T> T cloneObjectPar(Parcelable input) {
         Parcel parcel = null;
         try {
@@ -71,4 +77,5 @@ public class CloneUtils {
             parcel.recycle();
         }
     }
+
 }

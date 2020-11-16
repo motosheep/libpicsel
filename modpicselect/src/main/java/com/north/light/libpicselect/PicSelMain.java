@@ -7,10 +7,10 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
-import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.FileProvider;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.north.light.libpicselect.constant.PicConstant;
@@ -18,9 +18,13 @@ import com.north.light.libpicselect.model.PicSelConfig;
 import com.north.light.libpicselect.ui.PicBrowserActivity;
 import com.north.light.libpicselect.ui.PicSelectActivity;
 import com.north.light.libpicselect.ui.VideoRecordActivity;
+import com.north.light.libpicselect.utils.FileUtils;
+import com.north.light.libpicselect.utils.HandlerManager;
 
 import java.io.File;
-import java.io.Serializable;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,21 +37,21 @@ import static android.app.Activity.RESULT_OK;
  * <p>
  * <p>
  * 使用该类前，必须调用图片加载函数，选择加载的方式
- * 使用该类时，必须调用init函数
+ * 使用该类时，必须调用init函数  --  PicSelConfig->setLoaderManager
  * change by lzt 20201020 修改传入的浏览图片对象，保存在内存中，不再以intent形式传递，否则会报TransactionTooLargeException
  */
 
 public class PicSelMain {
     private static final int TAKEPIC_RESULT = 0x1111;
-    private static final int SELECTPIC_RESULT = 0x1112;
     private static final int CROPPIC_REQUEST = 0x1113;
-    private static final int VIDEOREC_RESULT = 0x1114;
     private static final String TAG = PicSelMain.class.getName();
 
     private Uri mCurUrl;//图片拍照url
     private String takePicPath;//图片拍照路径
-
     private String corpPicPath;//图片剪裁路径
+
+    private static volatile ArrayList<String> finalList = new ArrayList<>();
+
 
     private static final class SingleHolder {
         private static final PicSelMain mInstance = new PicSelMain();
@@ -56,6 +60,7 @@ public class PicSelMain {
     public static PicSelMain getInstance() {
         return SingleHolder.mInstance;
     }
+
 
     /**
      * 获取图片
@@ -143,7 +148,7 @@ public class PicSelMain {
         try {
             WeakReference<Activity> weakAct = new WeakReference<Activity>(activity);
             Intent intent = new Intent();
-            takePicPath = Environment.getExternalStorageDirectory() + "/pic/" + System.currentTimeMillis() + ".jpg";
+            takePicPath = PicConstant.getInstance().getCameraPath() + System.currentTimeMillis() + ".jpg";
             File file = new File(takePicPath);
             if (!file.getParentFile().exists()) {
                 file.getParentFile().mkdirs();
@@ -188,7 +193,7 @@ public class PicSelMain {
         try {
             WeakReference<Activity> weakAct = new WeakReference<Activity>(activity);
             //输出路径
-            corpPicPath = Environment.getExternalStorageDirectory() + "/pic/crop/" + System.currentTimeMillis() + ".jpg";
+            corpPicPath = PicConstant.getInstance().getCropPath() + System.currentTimeMillis() + ".jpg";
             File file = new File(corpPicPath);
             if (!file.getParentFile().exists()) {
                 file.getParentFile().mkdirs();
@@ -225,8 +230,9 @@ public class PicSelMain {
     /**
      * 必须重写
      * activity结果返回
+     * change by lzt 20201023 增加选择图片时，特殊字符图片处理逻辑
      */
-    public void ActivityForResult(int requestCode, int resultCode, Intent data, PicCallbackListener listener) {
+    public void ActivityForResult(int requestCode, int resultCode, Intent data, final PicCallbackListener listener) {
         if (resultCode == RESULT_OK && requestCode == TAKEPIC_RESULT) {
             try {
                 Log.d(TAG, "添加图片返回: " + takePicPath);
@@ -240,10 +246,36 @@ public class PicSelMain {
         if (requestCode == PicSelectActivity.CODE_REQUEST && resultCode == PicSelectActivity.CODE_RESULT) {
             //添加图片返回
             try {
-                ArrayList<String> images = (ArrayList<String>) data.getSerializableExtra(PicSelectActivity.CODE_SELECT);
+                final ArrayList<String> images = (ArrayList<String>) data.getSerializableExtra(PicSelectActivity.CODE_SELECT);
                 if (images != null && images.size() > 0) {
-                    if (listener != null) {
-                        listener.selectResult(images);
+                    //复制图片
+                    if (HandlerManager.getInstance().getIOHandler() != null) {
+                        HandlerManager.getInstance().getIOHandler().removeCallbacksAndMessages(null);
+                        HandlerManager.getInstance().getIOHandler().post(new Runnable() {
+                            @Override
+                            public void run() {
+                                finalList.clear();
+                                Log.d(TAG, "复制图片时间1: " + System.currentTimeMillis());
+                                for (String pic : images) {
+                                    String newPath = FileUtils.copyFileUsingFileStreams(pic, PicConstant.getInstance().getCopyPath());
+                                    if (!TextUtils.isEmpty(newPath)) {
+                                        finalList.add(newPath);
+                                    }
+                                }
+                                Log.d(TAG, "复制图片时间2: " + System.currentTimeMillis());
+                                //主线程--notify
+                                if (HandlerManager.getInstance().getUIHandler() != null) {
+                                    HandlerManager.getInstance().getUIHandler().post(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            if (listener != null) {
+                                                listener.selectResult(finalList);
+                                            }
+                                        }
+                                    });
+                                }
+                            }
+                        });
                     }
                 }
             } catch (Exception e) {
@@ -309,6 +341,35 @@ public class PicSelMain {
         } catch (Exception e) {
             Log.d(TAG, "播放视频异常： " + e);
         }
+    }
+
+    /**
+     * bitmap保存本地方法
+     * change by lzt 20201112 通知本地媒体类更新数据
+     */
+    public String saveBitmap(Bitmap bm, String path) {
+        Log.e(TAG, "保存图片");
+        File f = new File(path);
+        if (!f.exists()) {
+            FileUtils.createFile(f, true);
+        }
+        try {
+            FileOutputStream out = new FileOutputStream(f);
+            bm.compress(Bitmap.CompressFormat.PNG, 90, out);
+            out.flush();
+            out.close();
+            Log.i(TAG, "已经保存");
+            MediaStore.Images.Media.insertImage(PicSelConfig.getInstance().getContext().getContentResolver(),
+                    bm, "", "");
+            PicSelConfig.getInstance().getContext().sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE,
+                    Uri.parse("file://" + f.getAbsolutePath())));
+            return path;
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return "";
     }
 
     //接口回调

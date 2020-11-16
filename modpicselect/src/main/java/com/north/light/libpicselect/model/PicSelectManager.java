@@ -5,14 +5,12 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.os.Handler;
-import android.os.HandlerThread;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.text.TextUtils;
-import android.util.Log;
-
 
 import com.north.light.libpicselect.bean.PicInfo;
+import com.north.light.libpicselect.utils.HandlerManager;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -31,9 +29,8 @@ public class PicSelectManager implements PicSelectApi {
     private static final String TAG = PicSelectManager.class.getName();
     private Context mContext;
     private volatile boolean isInit = false;
-    private Handler mIOHandler;//io handler
     private OnResultListener mCallBack;
-    //是否显示gid
+    //是否显示gif
     private boolean isShowGif = false;
     //是否显示视频
     private boolean isShowVideo = false;
@@ -58,7 +55,6 @@ public class PicSelectManager implements PicSelectApi {
             return;
         }
         if (isInit) return;
-        mIOHandler = new Handler();
         isInit = true;
         if (callBack != null) {
             callBack.Success();
@@ -75,17 +71,18 @@ public class PicSelectManager implements PicSelectApi {
         }
         this.isShowVideo = isShowVideo;
         this.isShowGif = isShowGif;
-        mIOHandler.removeCallbacksAndMessages(null);
-        mIOHandler.post(loadRunnable);
+        if (HandlerManager.getInstance().getIOHandler() != null) {
+            HandlerManager.getInstance().getIOHandler().removeCallbacksAndMessages(null);
+            HandlerManager.getInstance().getIOHandler().post(loadRunnable);
+        }
     }
 
     @Override
     public void release() {
         removeResultListener();
-        if (mIOHandler != null) {
-            mIOHandler.removeCallbacksAndMessages(null);
+        if (HandlerManager.getInstance().getIOHandler() != null) {
+            HandlerManager.getInstance().getIOHandler().removeCallbacksAndMessages(null);
         }
-        mIOHandler = null;
         isInit = false;
     }
 
