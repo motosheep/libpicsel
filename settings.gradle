@@ -1,1 +1,1 @@
-include ':app', ':modpicselect'
+include ':app',  ':libpicsel'
