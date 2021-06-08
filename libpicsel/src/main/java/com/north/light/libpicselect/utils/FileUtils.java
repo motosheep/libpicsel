@@ -31,6 +31,7 @@ public class FileUtils implements Serializable {
     public static String copyFileUsingFileStreams(String s, String parentPath) {
         try {
             String resultPath = parentPath + System.currentTimeMillis() + getFileExtName(s);
+            new File(parentPath).mkdirs();
             File source = new File(s);
             File dest = new File(resultPath);
             if (!dest.exists()) {
