@@ -175,6 +175,12 @@ public class PicSelectManager implements PicSelectApi {
             }
         }
         //最后的结果
+        Collections.sort(result, new Comparator<PicInfo>() {
+            @Override
+            public int compare(PicInfo o1, PicInfo o2) {
+                return o2.getDate() - o1.getDate();
+            }
+        });
         if (mCallBack != null) {
             mCallBack.Data(result);
         }
