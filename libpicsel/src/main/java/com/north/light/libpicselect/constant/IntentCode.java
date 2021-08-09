@@ -18,20 +18,20 @@ public class IntentCode {
     public static final int PIC_SEL_REQ = 0x0001;
     public static final int PIC_SEL_RES = 0x0002;
     public static final String PIC_SEL_DATA_LIMIT = "PIC_SEL_DATA_LIMIT";
-    public static final String PIC_SEL_DATA_NEEDCAMERA = "PIC_SEL_DATA_NEEDCAMERA";
-    public static final String PIC_SEL_DATA_SHOWGIF = "PIC_SEL_DATA_SHOWGIF";
-    public static final String PIC_SEL_DATA_SHOWVIDEO = "PIC_SEL_DATA_SHOWVIDEO";
+    public static final String PIC_SEL_DATA_NEED_CAMERA = "PIC_SEL_DATA_NEED_CAMERA";
+    public static final String PIC_SEL_DATA_SHOW_GIF = "PIC_SEL_DATA_SHOW_GIF";
+    public static final String PIC_SEL_DATA_SHOW_VIDEO = "PIC_SEL_DATA_SHOW_VIDEO";
     public static final String PIC_SEL_DATA_SELECT = "PIC_SEL_DATA_SELECT";
 
     //图片浏览
     public static final int BROWSER_CODE_REQUEST = 0x1101;
     public static final int BROWSER_CODE_RESULT = 0x1102;
     public static final int BROWSER_CODE_RESULT_CONFIRM = 0x1103;
-    public static final String BROWSER_BROWSERPOS = "BROWSER_BROWSERPOS";
-    public static final String BROWSER_SHOWSELMODE = "BROWSER_SHOWSELMODE";
-    public static final String BROWSER_SELLIMIT = "BROWSER_SELLIMIT";
+    public static final String BROWSER_POSITION = "BROWSER_POSITION";
+    public static final String BROWSER_SHOW_SEL_MODE = "BROWSER_SHOW_SEL_MODE";
+    public static final String BROWSER_SEL_LIMIT = "BROWSER_SEL_LIMIT";
 
     //main
-    public static final int TAKEPIC_RESULT = 0x1111;
-    public static final int CROPPIC_REQUEST = 0x1113;
+    public static final int PIC_MAIN_TAKE_PIC_RESULT = 0x1111;
+    public static final int PIC_MAIN_CROP_PIC_REQUEST = 0x1113;
 }

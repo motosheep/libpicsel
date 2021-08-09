@@ -40,8 +40,8 @@ public class PicBrowserActivity extends PicBaseActivity {
     private List<PhotoView> mViewList = new ArrayList<>();
     private List<String> mDataList = new ArrayList<>();
     private ImageView mBack;
-    //是否开启选择模式
-    private volatile boolean isShowSelMode = false;//默认不开启
+    //是否开启选择模式--默认不开启
+    private volatile boolean isShowSelMode = false;
     private volatile int selLimit = 9;
     //图片选中框
     private CheckBox mCheckBox;
@@ -61,10 +61,10 @@ public class PicBrowserActivity extends PicBaseActivity {
 
     private void initView() {
         //是否开启选择模式
-        isShowSelMode = getIntent().getBooleanExtra(IntentCode.BROWSER_SHOWSELMODE, false);
-        selLimit = getIntent().getIntExtra(IntentCode.BROWSER_SELLIMIT, 9);
+        isShowSelMode = getIntent().getBooleanExtra(IntentCode.BROWSER_SHOW_SEL_MODE, false);
+        selLimit = getIntent().getIntExtra(IntentCode.BROWSER_SEL_LIMIT, 9);
         mDataList = PicConstant.getInstance().getPicList();
-        mBrowserPos = getIntent().getIntExtra(IntentCode.BROWSER_BROWSERPOS, 0);
+        mBrowserPos = getIntent().getIntExtra(IntentCode.BROWSER_POSITION, 0);
         mViewPager = findViewById(R.id.activity_pic_browser_viewpager);
         mBack = findViewById(R.id.activity_pic_browser_back);
         mConfirm = findViewById(R.id.activity_pic_browser_confirm);
@@ -219,7 +219,11 @@ public class PicBrowserActivity extends PicBaseActivity {
 
     };
 
-    //结束页面
+    /**
+     * 结束页面
+     *
+     * @param mode 1普通浏览，2选择浏览
+     */
     private void finishPage(int mode) {
         if (isShowSelMode) {
             if (mode == 1) {
@@ -241,9 +245,9 @@ public class PicBrowserActivity extends PicBaseActivity {
      */
     public static void launch(Activity activity, int position, int selLimit) {
         Intent intent = new Intent(activity, PicBrowserActivity.class);
-        intent.putExtra(IntentCode.BROWSER_BROWSERPOS, position);
-        intent.putExtra(IntentCode.BROWSER_SHOWSELMODE, true);
-        intent.putExtra(IntentCode.BROWSER_SELLIMIT, selLimit);
+        intent.putExtra(IntentCode.BROWSER_POSITION, position);
+        intent.putExtra(IntentCode.BROWSER_SHOW_SEL_MODE, true);
+        intent.putExtra(IntentCode.BROWSER_SEL_LIMIT, selLimit);
         activity.startActivityForResult(intent, IntentCode.BROWSER_CODE_REQUEST);
     }
 

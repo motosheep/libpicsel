@@ -68,8 +68,11 @@
         android:layout_alignParentBottom="true"
         android:layout_marginRight="10dp"
         android:layout_marginBottom="20dp"
-        android:background="@color/color_FFFFFF"
-        android:padding="6dp"
+        android:background="@drawable/shape_pic_brower_confirm_bg"
+        android:paddingLeft="10dp"
+        android:paddingTop="6dp"
+        android:paddingRight="10dp"
+        android:paddingBottom="6dp"
         android:text="@string/activity_pic_browser_confirm"
         android:textColor="@color/color_000000" />
 

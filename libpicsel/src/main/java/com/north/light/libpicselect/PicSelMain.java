@@ -48,7 +48,7 @@ public class PicSelMain {
     private Uri mCurUrl;//图片拍照url
     private String takePicPath;//图片拍照路径
     private String corpPicPath;//图片剪裁路径
-
+    //选择的图片中转list
     private static volatile ArrayList<String> finalList = new ArrayList<>();
 
     private static final class SingleHolder {
@@ -73,7 +73,7 @@ public class PicSelMain {
             //进入三方图片选择
             Intent intent1 = new Intent(activity, PicSelectActivity.class);
             intent1.putExtra(IntentCode.PIC_SEL_DATA_LIMIT, 1);
-            intent1.putExtra(IntentCode.PIC_SEL_DATA_NEEDCAMERA, showCamera);
+            intent1.putExtra(IntentCode.PIC_SEL_DATA_NEED_CAMERA, showCamera);
             activity.startActivityForResult(intent1, IntentCode.PIC_SEL_REQ);
         }
     }
@@ -97,7 +97,7 @@ public class PicSelMain {
             //进入三方图片选择
             Intent intent1 = new Intent(activity, PicSelectActivity.class);
             intent1.putExtra(IntentCode.PIC_SEL_DATA_LIMIT, size);
-            intent1.putExtra(IntentCode.PIC_SEL_DATA_NEEDCAMERA, showCamera);
+            intent1.putExtra(IntentCode.PIC_SEL_DATA_NEED_CAMERA, showCamera);
             activity.startActivityForResult(intent1, IntentCode.PIC_SEL_REQ);
         }
     }
@@ -113,8 +113,8 @@ public class PicSelMain {
             //进入三方图片选择
             Intent intent1 = new Intent(activity, PicSelectActivity.class);
             intent1.putExtra(IntentCode.PIC_SEL_DATA_LIMIT, size);
-            intent1.putExtra(IntentCode.PIC_SEL_DATA_NEEDCAMERA, showCamera);
-            intent1.putExtra(IntentCode.PIC_SEL_DATA_SHOWVIDEO, showVideo);
+            intent1.putExtra(IntentCode.PIC_SEL_DATA_NEED_CAMERA, showCamera);
+            intent1.putExtra(IntentCode.PIC_SEL_DATA_SHOW_VIDEO, showVideo);
             activity.startActivityForResult(intent1, IntentCode.PIC_SEL_REQ);
         }
     }
@@ -172,7 +172,7 @@ public class PicSelMain {
                 }
             }
             //进入拍照页
-            weakAct.get().startActivityForResult(intent, IntentCode.TAKEPIC_RESULT);
+            weakAct.get().startActivityForResult(intent, IntentCode.PIC_MAIN_TAKE_PIC_RESULT);
         } catch (Exception e) {
             Log.d(TAG, "拍照异常： " + e);
         }
@@ -218,7 +218,7 @@ public class PicSelMain {
             // 上面设为false的时候将MediaStore.EXTRA_OUTPUT关联一个Uri
             intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(file));
             intent.putExtra("outputFormat", Bitmap.CompressFormat.JPEG.toString());
-            weakAct.get().startActivityForResult(intent, IntentCode.CROPPIC_REQUEST);
+            weakAct.get().startActivityForResult(intent, IntentCode.PIC_MAIN_CROP_PIC_REQUEST);
         } catch (Exception e) {
             Log.d(TAG, "剪裁图片异常： " + e);
         }
@@ -231,7 +231,7 @@ public class PicSelMain {
      * change by lzt 20201023 增加选择图片时，特殊字符图片处理逻辑
      */
     public void ActivityForResult(int requestCode, int resultCode, Intent data, final PicCallbackListener listener) {
-        if (resultCode == RESULT_OK && requestCode == IntentCode.TAKEPIC_RESULT) {
+        if (resultCode == RESULT_OK && requestCode == IntentCode.PIC_MAIN_TAKE_PIC_RESULT) {
             try {
                 Log.d(TAG, "添加图片返回: " + takePicPath);
                 if (listener != null) {
@@ -280,7 +280,7 @@ public class PicSelMain {
                 Log.d(TAG, "添加图片返回e: " + e);
             }
         }
-        if (requestCode == IntentCode.CROPPIC_REQUEST && resultCode == RESULT_OK) {
+        if (requestCode == IntentCode.PIC_MAIN_CROP_PIC_REQUEST && resultCode == RESULT_OK) {
             Log.d(TAG, "剪裁图片路径返回: " + corpPicPath);
             try {
                 if (listener != null) {
@@ -311,7 +311,7 @@ public class PicSelMain {
         }
         Intent intent = new Intent(activity, PicBrowserActivity.class);
         PicConstant.getInstance().setPicList(picList);
-        intent.putExtra(IntentCode.BROWSER_BROWSERPOS, pos);
+        intent.putExtra(IntentCode.BROWSER_POSITION, pos);
         activity.startActivity(intent);
     }
 

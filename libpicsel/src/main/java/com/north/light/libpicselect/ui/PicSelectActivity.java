@@ -65,9 +65,9 @@ public class PicSelectActivity extends PicBaseActivity {
 
     private void initView() {
         mLimit = getIntent().getIntExtra(IntentCode.PIC_SEL_DATA_LIMIT, 9);//默认为九个
-        isShowCamera = getIntent().getBooleanExtra(IntentCode.PIC_SEL_DATA_NEEDCAMERA, false);//相机显示标识
-        isShowGif = getIntent().getBooleanExtra(IntentCode.PIC_SEL_DATA_SHOWGIF, false);//gif显示标识
-        isShowVideo = getIntent().getBooleanExtra(IntentCode.PIC_SEL_DATA_SHOWVIDEO, false);//视频显示标识
+        isShowCamera = getIntent().getBooleanExtra(IntentCode.PIC_SEL_DATA_NEED_CAMERA, false);//相机显示标识
+        isShowGif = getIntent().getBooleanExtra(IntentCode.PIC_SEL_DATA_SHOW_GIF, false);//gif显示标识
+        isShowVideo = getIntent().getBooleanExtra(IntentCode.PIC_SEL_DATA_SHOW_VIDEO, false);//视频显示标识
         if (mLimit > 9) mLimit = 9;
         mContent = findViewById(R.id.activity_pic_sel_recy);
         mBack = findViewById(R.id.activity_pic_sel_back);

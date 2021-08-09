@@ -5,12 +5,14 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.provider.MediaStore;
-import androidx.core.app.ActivityCompat;
 import android.text.TextUtils;
+
+import androidx.core.app.ActivityCompat;
 
 import com.north.light.libpicselect.bean.PicInfo;
 import com.north.light.libpicselect.utils.HandlerManager;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -33,6 +35,8 @@ public class PicSelectManager implements PicSelectApi {
     private boolean isShowGif = false;
     //是否显示视频
     private boolean isShowVideo = false;
+    //文件检查存在对象
+    private static File existFile;
 
     private static final class SingleHolder {
         static final PicSelectManager mInstance = new PicSelectManager();
@@ -47,6 +51,8 @@ public class PicSelectManager implements PicSelectApi {
     public void init(Context context, InitCallBack callBack) {
         this.mContext = context.getApplicationContext();
         if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
+                || ActivityCompat.checkSelfPermission(mContext, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED
+                || ActivityCompat.checkSelfPermission(mContext, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED
                 || ActivityCompat.checkSelfPermission(mContext, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             if (callBack != null) {
                 callBack.NoPermission();
@@ -62,9 +68,9 @@ public class PicSelectManager implements PicSelectApi {
 
     /**
      * change by lzt  20200823增加是否显示视频的标识
-     * */
+     */
     @Override
-    public void load(boolean isShowGif,boolean isShowVideo) {
+    public void load(boolean isShowGif, boolean isShowVideo) {
         if (!isInit) {
             return;
         }
@@ -124,11 +130,9 @@ public class PicSelectManager implements PicSelectApi {
             picDate.add(date);
             picFileName.add(new String(data, 0, data.length - 1));
         }
-
         List<PicInfo> result = new ArrayList<>();
-
         //获取视频数据
-        if(isShowVideo){
+        if (isShowVideo) {
             List<String> videoName = new ArrayList();
             List<String> videoFileName = new ArrayList();
             List<Integer> videoDate = new ArrayList<>();
@@ -150,15 +154,22 @@ public class PicSelectManager implements PicSelectApi {
             }
             //合并数据__视频
             for (int i = 0; i < videoName.size(); i++) {
-                PicInfo info = new PicInfo(videoName.get(i), videoFileName.get(i), videoDate.get(i),2);
+                PicInfo info = new PicInfo(videoName.get(i), videoFileName.get(i), videoDate.get(i), 2);
                 result.add(info);
             }
         }
-
         //合并数据__图片
         for (int i = 0; i < picName.size(); i++) {
-            PicInfo info = new PicInfo(picName.get(i), picFileName.get(i), picDate.get(i),1);
+            PicInfo info = new PicInfo(picName.get(i), picFileName.get(i), picDate.get(i), 1);
             result.add(info);
+        }
+        //查询文件是否存在
+        for (int i = result.size() - 1; i > 0; i--) {
+            existFile = new File(result.get(i).getPath());
+            if (!existFile.exists()) {
+                result.remove(i);
+            }
+            existFile = null;
         }
         //统计目录下文件个数
         Map<String, Long> directoryCount = new HashMap<>();

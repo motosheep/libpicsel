@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -24,12 +23,11 @@
 
         <ImageView
             android:id="@+id/activity_pic_sel_back"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:paddingLeft="6dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:layout_alignParentLeft="true"
             android:layout_centerInParent="true"
-            android:layout_marginLeft="10dp"
+            android:paddingLeft="16dp"
             android:src="@drawable/ic_arrow_back_black_24dp" />
 
         <TextView
@@ -38,7 +36,7 @@
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
             android:drawableRight="@drawable/ic_arrow_drop_down_black_24dp"
-            android:text="选择图片"
+            android:text="@string/activity_pic_sel_title"
             android:textColor="@color/color_FFFFFF"
             android:textSize="16sp" />
 
@@ -54,7 +52,7 @@
             android:paddingTop="2dp"
             android:paddingRight="6dp"
             android:paddingBottom="2dp"
-            android:text="确定"
+            android:text="@string/activity_pic_sel_confirm"
             android:textColor="@color/color_000000"
             android:textSize="14sp" />
 
