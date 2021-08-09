@@ -12,40 +12,35 @@ import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 
 import com.north.light.libpicselect.R;
+import com.north.light.libpicselect.constant.IntentCode;
 
 /**
  * 视频录制activity
  */
 public class VideoRecordActivity extends PicBaseActivity {
-    public static final int CODE_REQUEST = 0x0003;
-    public static final int CODE_RESULT = 0x0004;
-    private static final int VIDEOREC_RESULT = 0x0005;
-    public static final String CODE_RECODE_SECOND = "CODE_RECODE_SECOND";
-    public static final String CODE_RECODE_PATH = "CODE_RECODE_PATH";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_vedio_record);
-        int second = getIntent().getIntExtra(CODE_RECODE_SECOND, 10);
+        int second = getIntent().getIntExtra(IntentCode.VIDEO_RECODE_SECOND, 10);
         Intent intent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
         intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 0);
-//        intent.putExtra(MediaStore.EXTRA_SIZE_LIMIT, 10485760L);
         intent.putExtra(MediaStore.EXTRA_DURATION_LIMIT, second);
-        startActivityForResult(intent, VIDEOREC_RESULT);
+        startActivityForResult(intent, IntentCode.VIDEO_RECORD_RESULT_CODE);
     }
 
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == RESULT_OK && requestCode == VIDEOREC_RESULT) {
+        if (resultCode == RESULT_OK && requestCode ==  IntentCode.VIDEO_RECORD_RESULT_CODE) {
             //视频录制返回  getPath(MyApplicationLike.getContext(),data.getData())
             try {
                 String path = getPath(this.getApplicationContext(), data.getData());
                 Intent result = new Intent();
-                result.putExtra(CODE_RECODE_PATH, path);
-                setResult(CODE_RESULT, result);
+                result.putExtra(IntentCode.VIDEO_RECODE_PATH, path);
+                setResult(IntentCode.VIDEO_RES, result);
                 finish();
             } catch (Exception e) {
                 finish();

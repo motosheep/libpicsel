@@ -52,23 +52,23 @@ public class MainActivity extends AppCompatActivity {
         });
 
         //test---------------------------------------------------------------------------------
-        Cursor cursor = getContentResolver().query(
-                MediaStore.Video.Media.EXTERNAL_CONTENT_URI, null, null, null, null);
-        while (cursor.moveToNext()) {
-            //获取视频的名称
-            String name = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DISPLAY_NAME));
-            if (TextUtils.isEmpty(name)) {
-                continue;
-            }
-            //日期
-            int date = cursor.getInt(cursor.getColumnIndex(MediaStore.Images.Media.DATE_MODIFIED));
-            //获取图片的生成日期
-            byte[] data = cursor.getBlob(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
-            Log.d(TAG, "数据:data1 " + date + "  data2: " + (new String(data, 0, data.length - 1)) + "  name:" + name);
-
-        }
+//        Cursor cursor = getContentResolver().query(
+//                MediaStore.Video.Media.EXTERNAL_CONTENT_URI, null, null, null, null);
+//        while (cursor.moveToNext()) {
+//            //获取视频的名称
+//            String name = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DISPLAY_NAME));
+//            if (TextUtils.isEmpty(name)) {
+//                continue;
+//            }
+//            //日期
+//            int date = cursor.getInt(cursor.getColumnIndex(MediaStore.Images.Media.DATE_MODIFIED));
+//            //获取图片的生成日期
+//            byte[] data = cursor.getBlob(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
+//            Log.d(TAG, "数据:data1 " + date + "  data2: " + (new String(data, 0, data.length - 1)) + "  name:" + name);
+//
+//        }
         //test---------------------------------------------------------------------------------
-        PicSelMain.getInstance().getPicVideoMul(false,this,9,true,true);
+//        PicSelMain.getInstance().getPicVideoMul(false,this,9,true,true);
 //        PicSelMain.getIntance().recordVideo(this, 10);
     }
 

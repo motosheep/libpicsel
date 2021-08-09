@@ -2,8 +2,6 @@ package com.north.light.libpicselect.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -11,12 +9,16 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.north.light.libpicselect.PicSelMain;
 import com.north.light.libpicselect.R;
 import com.north.light.libpicselect.adapter.PicSelAdapter;
 import com.north.light.libpicselect.bean.DirecotryIntentInfo;
 import com.north.light.libpicselect.bean.PicInfo;
 import com.north.light.libpicselect.bean.PicSelIntentInfo;
+import com.north.light.libpicselect.constant.IntentCode;
 import com.north.light.libpicselect.constant.PicConstant;
 import com.north.light.libpicselect.model.PicSelConfig;
 import com.north.light.libpicselect.model.PicSelectApi;
@@ -35,13 +37,6 @@ import java.util.Map;
  * change by lzt 20200823 增加视频显示逻辑
  */
 public class PicSelectActivity extends PicBaseActivity {
-    public static final int CODE_REQUEST = 0x0001;
-    public static final int CODE_RESULT = 0x0002;
-    public static final String CODE_LIMIT = "PicSelectActivity_CODE_LIMIT";
-    public static final String CODE_NEEDCAMERA = "PicSelectActivity_CODE_NEEDCAMERA";
-    public static final String CODE_SHOWGIF = "PicSelectActivity_CODE_SHOWGIF";
-    public static final String CODE_SHOWVIDEO = "PicSelectActivity_CODE_SHOWVIDEO";
-    public static final String CODE_SELECT = "PicSelectActivity_CODE_SELECT";
 
     private int mLimit = 9;
 
@@ -69,10 +64,10 @@ public class PicSelectActivity extends PicBaseActivity {
     }
 
     private void initView() {
-        mLimit = getIntent().getIntExtra(CODE_LIMIT, 9);//默认为九个
-        isShowCamera = getIntent().getBooleanExtra(CODE_NEEDCAMERA, false);//相机显示标识
-        isShowGif = getIntent().getBooleanExtra(CODE_SHOWGIF, false);//gif显示标识
-        isShowVideo = getIntent().getBooleanExtra(CODE_SHOWVIDEO, false);//视频显示标识
+        mLimit = getIntent().getIntExtra(IntentCode.PIC_SEL_DATA_LIMIT, 9);//默认为九个
+        isShowCamera = getIntent().getBooleanExtra(IntentCode.PIC_SEL_DATA_NEEDCAMERA, false);//相机显示标识
+        isShowGif = getIntent().getBooleanExtra(IntentCode.PIC_SEL_DATA_SHOWGIF, false);//gif显示标识
+        isShowVideo = getIntent().getBooleanExtra(IntentCode.PIC_SEL_DATA_SHOWVIDEO, false);//视频显示标识
         if (mLimit > 9) mLimit = 9;
         mContent = findViewById(R.id.activity_pic_sel_recy);
         mBack = findViewById(R.id.activity_pic_sel_back);
@@ -99,8 +94,8 @@ public class PicSelectActivity extends PicBaseActivity {
             public void onClick(View v) {
                 if (mAdapter != null) {
                     Intent result = new Intent();
-                    result.putExtra(CODE_SELECT, (Serializable) mAdapter.getSelectInfo());
-                    setResult(CODE_RESULT, result);
+                    result.putExtra(IntentCode.PIC_SEL_DATA_SELECT, (Serializable) mAdapter.getSelectInfo());
+                    setResult(IntentCode.PIC_SEL_RES, result);
                 }
                 finish();
             }
@@ -152,7 +147,7 @@ public class PicSelectActivity extends PicBaseActivity {
             @Override
             public void camera() {
                 //拍照
-                PicSelMain.getInstance().takePic(PicSelectActivity.this,0);
+                PicSelMain.getInstance().takePic(PicSelectActivity.this, 0);
             }
         });
         PicSelectManager.getInstance().setOnResultListener(new PicSelectManager.OnResultListener() {
@@ -206,7 +201,7 @@ public class PicSelectActivity extends PicBaseActivity {
             updateSelCount();
         }
         //全屏页面，普通返回
-        if (requestCode == PicBrowserActivity.CODE_REQUEST && resultCode == PicBrowserActivity.CODE_RESULT) {
+        if (requestCode == IntentCode.BROWSER_CODE_REQUEST && resultCode == IntentCode.PIC_SEL_RES) {
             if (mAdapter != null) {
                 for (int i = 0; i < PicSelIntentInfo.getInstance().getPicSelList().size(); i++) {
                     if (PicSelIntentInfo.getInstance().getPicSelList().get(i).isSelect()) {
@@ -218,7 +213,7 @@ public class PicSelectActivity extends PicBaseActivity {
             }
         }
         //全屏页面，确认返回
-        if (requestCode == PicBrowserActivity.CODE_REQUEST && resultCode == PicBrowserActivity.CODE_RESULT_CONFIRM) {
+        if (requestCode == IntentCode.BROWSER_CODE_REQUEST && resultCode == IntentCode.BROWSER_CODE_RESULT_CONFIRM) {
             if (mAdapter != null) {
                 for (int i = 0; i < PicSelIntentInfo.getInstance().getPicSelList().size(); i++) {
                     if (PicSelIntentInfo.getInstance().getPicSelList().get(i).isSelect()) {
@@ -230,8 +225,8 @@ public class PicSelectActivity extends PicBaseActivity {
                 //设置返回结果
                 if (mAdapter != null) {
                     Intent result = new Intent();
-                    result.putExtra(CODE_SELECT, (Serializable) mAdapter.getSelectInfo());
-                    setResult(CODE_RESULT, result);
+                    result.putExtra(IntentCode.PIC_SEL_DATA_SELECT, (Serializable) mAdapter.getSelectInfo());
+                    setResult(IntentCode.PIC_SEL_RES, result);
                 }
                 finish();
             }
@@ -243,8 +238,8 @@ public class PicSelectActivity extends PicBaseActivity {
                 List<String> pList = new ArrayList<>();
                 pList.add(path);
                 Intent result = new Intent();
-                result.putExtra(CODE_SELECT, (Serializable) pList);
-                setResult(CODE_RESULT, result);
+                result.putExtra(IntentCode.PIC_SEL_DATA_SELECT, (Serializable) pList);
+                setResult(IntentCode.PIC_SEL_RES, result);
                 finish();
             }
 

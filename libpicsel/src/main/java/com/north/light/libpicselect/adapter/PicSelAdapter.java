@@ -26,6 +26,7 @@ import java.util.List;
  * data 2019/12/8
  * <p>
  * change by lzt 20200823 增加视频数据源显示适配
+ * change by lzt 20210809 修复没有选择图片时，相机图标显示不全问题
  */
 public class PicSelAdapter extends RecyclerView.Adapter<PicSelAdapter.PicHolder> {
     private Context mContext;
@@ -93,6 +94,11 @@ public class PicSelAdapter extends RecyclerView.Adapter<PicSelAdapter.PicHolder>
 
     @Override
     public void onBindViewHolder(@NonNull final PicHolder holder, final int i) {
+        //设置图片显示通用宽高-----------------
+        RelativeLayout.LayoutParams mImgP = (RelativeLayout.LayoutParams) holder.mImage.getLayoutParams();
+        mImgP.height = (int) (mScreenWidth / 4);
+        holder.mImage.setLayoutParams(mImgP);
+        //设置图片显示通用宽高-----------------
         if (isShowCamera && i == 0) {
             holder.mCheckBox.setVisibility(View.GONE);
             holder.mImage.setImageResource(R.drawable.ic_camera_alt_black_24dp);
@@ -108,9 +114,6 @@ public class PicSelAdapter extends RecyclerView.Adapter<PicSelAdapter.PicHolder>
         } else {
             final int position = isShowCamera ? (i - 1) : i;
             holder.mCheckBox.setVisibility(View.VISIBLE);
-            RelativeLayout.LayoutParams mImgP = (RelativeLayout.LayoutParams) holder.mImage.getLayoutParams();
-            mImgP.height = (int) (mScreenWidth / 4);
-            holder.mImage.setLayoutParams(mImgP);
             if (mBindListener != null) {
                 mBindListener.BindImageView(mResult.get(position).getPath(), holder.mImage);
             }

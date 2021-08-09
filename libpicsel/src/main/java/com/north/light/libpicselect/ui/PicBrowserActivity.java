@@ -4,8 +4,6 @@ package com.north.light.libpicselect.ui;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import androidx.viewpager.widget.PagerAdapter;
-import androidx.viewpager.widget.ViewPager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -15,10 +13,14 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.viewpager.widget.PagerAdapter;
+import androidx.viewpager.widget.ViewPager;
+
 import com.github.chrisbanes.photoview.PhotoView;
 import com.north.light.libpicselect.PicSelMain;
 import com.north.light.libpicselect.R;
 import com.north.light.libpicselect.bean.PicSelIntentInfo;
+import com.north.light.libpicselect.constant.IntentCode;
 import com.north.light.libpicselect.constant.PicConstant;
 import com.north.light.libpicselect.model.PicSelConfig;
 
@@ -32,13 +34,6 @@ import java.util.List;
  * change by lzt 20201020 修改图片数据重内存获取
  */
 public class PicBrowserActivity extends PicBaseActivity {
-    public static final int CODE_REQUEST = 0x1101;
-    public static final int CODE_RESULT = 0x1102;
-    public static final int CODE_RESULT_CONFIRM = 0x1103;
-
-    public static final String CODE_BROWSERPOS = "CODE_BROWSERPOS";
-    public static final String CODE_SHOWSELMODE = "CODE_SHOWSELMODE";
-    public static final String CODE_SELLIMIT = "CODE_SELLIMIT";
     private int mBrowserPos = 0;//浏览位置
     private static final String TAG = PicBrowserActivity.class.getName();
     private ViewPager mViewPager;
@@ -66,10 +61,10 @@ public class PicBrowserActivity extends PicBaseActivity {
 
     private void initView() {
         //是否开启选择模式
-        isShowSelMode = getIntent().getBooleanExtra(CODE_SHOWSELMODE, false);
-        selLimit = getIntent().getIntExtra(CODE_SELLIMIT, 9);
+        isShowSelMode = getIntent().getBooleanExtra(IntentCode.BROWSER_SHOWSELMODE, false);
+        selLimit = getIntent().getIntExtra(IntentCode.BROWSER_SELLIMIT, 9);
         mDataList = PicConstant.getInstance().getPicList();
-        mBrowserPos = getIntent().getIntExtra(CODE_BROWSERPOS, 0);
+        mBrowserPos = getIntent().getIntExtra(IntentCode.BROWSER_BROWSERPOS, 0);
         mViewPager = findViewById(R.id.activity_pic_browser_viewpager);
         mBack = findViewById(R.id.activity_pic_browser_back);
         mConfirm = findViewById(R.id.activity_pic_browser_confirm);
@@ -228,9 +223,9 @@ public class PicBrowserActivity extends PicBaseActivity {
     private void finishPage(int mode) {
         if (isShowSelMode) {
             if (mode == 1) {
-                setResult(CODE_RESULT);
+                setResult(IntentCode.BROWSER_CODE_RESULT);
             } else if (mode == 2) {
-                setResult(CODE_RESULT_CONFIRM);
+                setResult(IntentCode.BROWSER_CODE_RESULT_CONFIRM);
             }
         }
         finish();
@@ -246,10 +241,10 @@ public class PicBrowserActivity extends PicBaseActivity {
      */
     public static void launch(Activity activity, int position, int selLimit) {
         Intent intent = new Intent(activity, PicBrowserActivity.class);
-        intent.putExtra(PicBrowserActivity.CODE_BROWSERPOS, position);
-        intent.putExtra(PicBrowserActivity.CODE_SHOWSELMODE, true);
-        intent.putExtra(PicBrowserActivity.CODE_SELLIMIT, selLimit);
-        activity.startActivityForResult(intent, CODE_REQUEST);
+        intent.putExtra(IntentCode.BROWSER_BROWSERPOS, position);
+        intent.putExtra(IntentCode.BROWSER_SHOWSELMODE, true);
+        intent.putExtra(IntentCode.BROWSER_SELLIMIT, selLimit);
+        activity.startActivityForResult(intent, IntentCode.BROWSER_CODE_REQUEST);
     }
 
     /**
