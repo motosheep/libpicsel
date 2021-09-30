@@ -1,5 +1,7 @@
 package com.north.light.libpicselect;
 
+import static android.app.Activity.RESULT_OK;
+
 import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
@@ -30,8 +32,6 @@ import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
-
-import static android.app.Activity.RESULT_OK;
 
 /**
  * Created by lzt
@@ -130,7 +130,8 @@ public class PicSelMain {
      */
     public boolean recordVideo(Activity activity, int second) {
         if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
-                || ActivityCompat.checkSelfPermission(activity, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                || ActivityCompat.checkSelfPermission(activity, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED
+                || ActivityCompat.checkSelfPermission(activity, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
             return false;
         }
         Intent intent1 = new Intent(activity, VideoRecordActivity.class);
@@ -335,6 +336,20 @@ public class PicSelMain {
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             intent.setDataAndType(uri, "video/*");
             //进入拍照页
+            weakAct.get().startActivity(intent);
+        } catch (Exception e) {
+            Log.d(TAG, "播放视频异常： " + e);
+        }
+    }
+
+    //播放网络视频
+    public void playNetVideo(String url, Activity activity) {
+        try {
+            WeakReference<Activity> weakAct = new WeakReference<Activity>(activity);
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            String type = "video/*";
+            Uri uri = Uri.parse(url);
+            intent.setDataAndType(uri, type);
             weakAct.get().startActivity(intent);
         } catch (Exception e) {
             Log.d(TAG, "播放视频异常： " + e);

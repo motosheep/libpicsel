@@ -12,9 +12,9 @@ import java.util.List;
  * 描述：图片内存缓存类
  */
 public class PicConstant implements Serializable {
-    private String mCameraPath = Environment.getExternalStorageDirectory() + "/pic/camera/";
-    private String mCropPath = Environment.getExternalStorageDirectory() + "/pic/crop/";
-    private String mCopyPath = Environment.getExternalStorageDirectory() + "/pic/copy/";
+    private String mCameraPath = Environment.getExternalStorageDirectory() + "/kkgj/camera/";
+    private String mCropPath = Environment.getExternalStorageDirectory() + "/kkgj/crop/";
+    private String mCopyPath = Environment.getExternalStorageDirectory() + "/kkgj/copy/";
 
 
     private static class SingleHolder implements Serializable {

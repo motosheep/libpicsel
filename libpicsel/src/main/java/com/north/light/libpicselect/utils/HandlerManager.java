@@ -49,11 +49,12 @@ public class HandlerManager implements Serializable {
             mIOCopyHandler.post(new Runnable() {
                 @Override
                 public void run() {
-                    Log.d(TAG,"删除文件1：" + System.currentTimeMillis());
-                    FileUtils.delete(PicConstant.getInstance().getCopyPath());
-                    FileUtils.delete(PicConstant.getInstance().getCropPath());
-                    FileUtils.delete(PicConstant.getInstance().getCameraPath());
-                    Log.d(TAG,"删除文件2：" + System.currentTimeMillis());
+                    //change by lzt 20210918 注释删除代码
+//                    Log.d(TAG,"删除文件1：" + System.currentTimeMillis());
+//                    FileUtils.delete(PicConstant.getInstance().getCopyPath());
+//                    FileUtils.delete(PicConstant.getInstance().getCropPath());
+//                    FileUtils.delete(PicConstant.getInstance().getCameraPath());
+//                    Log.d(TAG,"删除文件2：" + System.currentTimeMillis());
                 }
             });
         }

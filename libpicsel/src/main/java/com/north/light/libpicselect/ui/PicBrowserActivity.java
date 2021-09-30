@@ -151,8 +151,14 @@ public class PicBrowserActivity extends PicBaseActivity {
             public void onClick(View v) {
                 //播放视频
                 try {
-                    PicSelMain.getInstance().playLocalVideo(mDataList.get(mViewPager.getCurrentItem())
-                            , PicBrowserActivity.this);
+                    String path = mDataList.get(mViewPager.getCurrentItem());
+                    if (path.contains("http")) {
+                        PicSelMain.getInstance().playNetVideo(mDataList.get(mViewPager.getCurrentItem())
+                                , PicBrowserActivity.this);
+                    } else {
+                        PicSelMain.getInstance().playLocalVideo(mDataList.get(mViewPager.getCurrentItem())
+                                , PicBrowserActivity.this);
+                    }
                 } catch (Exception e) {
                     Log.d(TAG, "mPlayBt e: " + e.getMessage());
                 }
