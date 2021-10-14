@@ -116,6 +116,10 @@ public class PicBrowserActivity extends PicBaseActivity {
                     isVideo(path);
                     mCheckBox.setChecked(isSel);
                     updateSelCount();
+                }else{
+                    //非选择模式--只更新播放按钮视觉
+                    String path = mDataList.get(i);
+                    isVideo(path);
                 }
             }
 
