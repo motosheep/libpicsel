@@ -248,9 +248,9 @@ public class PicSelMain {
                 final ArrayList<String> images = (ArrayList<String>) data.getSerializableExtra(IntentCode.PIC_SEL_DATA_SELECT);
                 if (images != null && images.size() > 0) {
                     //复制图片
-                    if (HandlerManager.getInstance().getIOHandler() != null) {
-                        HandlerManager.getInstance().getIOHandler().removeCallbacksAndMessages(null);
-                        HandlerManager.getInstance().getIOHandler().post(new Runnable() {
+                    if (HandlerManager.getInstance().getCopyHandler() != null) {
+                        HandlerManager.getInstance().getCopyHandler().removeCallbacksAndMessages(null);
+                        HandlerManager.getInstance().getCopyHandler().post(new Runnable() {
                             @Override
                             public void run() {
                                 finalList.clear();
@@ -259,6 +259,13 @@ public class PicSelMain {
                                     String newPath = FileUtils.copyFileUsingFileStreams(pic, PicConstant.getInstance().getCopyPath());
                                     if (!TextUtils.isEmpty(newPath)) {
                                         finalList.add(newPath);
+                                    }
+                                }
+                                //add by lzt 20211109 增加情况，假设图片路径复制失败，则直接获取原图路径，兜底
+                                if ((finalList != null && finalList.size() == 0)) {
+                                    if (images != null && images.size() != 0) {
+                                        Log.d(TAG, "复制图片失败，直接获取原图路径");
+                                        finalList.addAll(images);
                                     }
                                 }
                                 Log.d(TAG, "复制图片时间2: " + System.currentTimeMillis());

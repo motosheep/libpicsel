@@ -3,9 +3,6 @@ package com.north.light.libpicselect.utils;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
-import android.util.Log;
-
-import com.north.light.libpicselect.constant.PicConstant;
 
 import java.io.Serializable;
 
@@ -19,7 +16,11 @@ public class HandlerManager implements Serializable {
     //io handler
     private Handler mIOCopyHandler;
     private HandlerThread mHandlerThread;
-    private Handler mUIHandler;//ui handler
+    //ui handler
+    private Handler mUIHandler;
+    //copy handler
+    private Handler mResultCopyHandler;
+    private HandlerThread mCopyThread;
 
     private static final class SingleHolder {
         static final HandlerManager mInstance = new HandlerManager();
@@ -30,9 +31,12 @@ public class HandlerManager implements Serializable {
     }
 
     public void init() {
-
         if (mUIHandler == null) {
             mUIHandler = new Handler(Looper.getMainLooper());
+        }
+        if (mCopyThread == null) {
+            mCopyThread = new HandlerThread("PIC_SEL_MAIN_COPY_THREAD");
+            mCopyThread.start();
         }
         if (mHandlerThread == null) {
             mHandlerThread = new HandlerThread("PIC_SEL_MAIN_COPY_HANDLER_THREAD");
@@ -41,10 +45,12 @@ public class HandlerManager implements Serializable {
         if (mIOCopyHandler == null) {
             mIOCopyHandler = new Handler(mHandlerThread.getLooper());
         }
-
+        if (mResultCopyHandler == null) {
+            mResultCopyHandler = new Handler(mCopyThread.getLooper());
+        }
     }
 
-    public void clearCache(){
+    public void clearCache() {
         if (mIOCopyHandler != null) {
             mIOCopyHandler.post(new Runnable() {
                 @Override
@@ -65,7 +71,14 @@ public class HandlerManager implements Serializable {
     public Handler getIOHandler() {
         return mIOCopyHandler;
     }
+
+    //获取ui handler
     public Handler getUIHandler() {
         return mUIHandler;
+    }
+
+    //获取copy handler
+    public Handler getCopyHandler() {
+        return mResultCopyHandler;
     }
 }
