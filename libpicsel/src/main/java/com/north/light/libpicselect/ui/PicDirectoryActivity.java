@@ -41,15 +41,15 @@ public class PicDirectoryActivity extends PicBaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        overridePendingTransition(R.anim.anim_pic_top_in, R.anim.anim_pic_top_out);
-        setContentView(R.layout.activity_pic_deirectoryctivity);
+        overridePendingTransition(R.anim.lib_pic_anim_pic_top_in, R.anim.lib_pic_anim_pic_top_out);
+        setContentView(R.layout.lib_pic_activity_pic_deirectoryctivity);
         initView();
     }
 
     @Override
     public void finish() {
         super.finish();
-        overridePendingTransition(R.anim.anim_pic_top_in, R.anim.anim_pic_top_out);
+        overridePendingTransition(R.anim.lib_pic_anim_pic_top_in, R.anim.lib_pic_anim_pic_top_out);
     }
 
     private void initView() {
@@ -59,8 +59,8 @@ public class PicDirectoryActivity extends PicBaseActivity {
                 Toast.makeText(this.getApplicationContext(), "数据错误", Toast.LENGTH_SHORT).show();
                 finish();
             } else {
-                mRoot = findViewById(R.id.activity_pic_directory_root);
-                mContent = findViewById(R.id.activity_pic_directory_content);
+                mRoot = findViewById(R.id.lib_pic_activity_pic_directory_root);
+                mContent = findViewById(R.id.lib_pic_activity_pic_directory_content);
                 mContent.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
                 mContent.addItemDecoration(new DialogItemDecoration(4));
                 mAdapter = new DirectoryDialogSelAdapter(this);

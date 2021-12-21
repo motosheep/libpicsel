@@ -1,5 +1,9 @@
 <resources>
-    <string name="pic_select_activity_checkbox_count">(%1$d/%2$d)确定</string>
-    <string name="pic_browser_activity_checkbox_count">(%1$d/%2$d)</string>
-    <string name="activity_pic_browser_confirm">确定</string>
+    <string name="lib_pic_pic_select_activity_checkbox_count">(%1$d/%2$d)确定</string>
+    <string name="lib_pic_pic_browser_activity_checkbox_count">(%1$d/%2$d)</string>
+    <string name="lib_pic_activity_pic_browser_confirm">确定</string>
+    <string name="lib_pic_activity_pic_clip_confirm">选取</string>
+    <string name="lib_pic_activity_pic_clip_cancel">取消</string>
+    <string name="lib_pic_activity_pic_select_action">选择图片</string>
+    <string name="lib_pic_activity_pic_select_confirm">确定</string>
 </resources>

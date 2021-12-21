@@ -22,7 +22,6 @@ public abstract class PicBaseActivity extends Activity {
         super.onCreate(savedInstanceState);
         try {
             //竖屏
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 Window window = getWindow();
                 window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
@@ -31,6 +30,7 @@ public abstract class PicBaseActivity extends Activity {
                 //底部导航栏
                 //window.setNavigationBarColor(activity.getResources().getColor(colorResId));
             }
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         } catch (Exception e) {
             e.printStackTrace();
         }

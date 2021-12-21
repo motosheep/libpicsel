@@ -15,7 +15,9 @@ public class PicConstant implements Serializable {
     private String mCameraPath = Environment.getExternalStorageDirectory() + "/kkgj/camera/";
     private String mCropPath = Environment.getExternalStorageDirectory() + "/kkgj/crop/";
     private String mCopyPath = Environment.getExternalStorageDirectory() + "/kkgj/copy/";
-
+    private String mRecordVideo = Environment.getExternalStorageDirectory() + "/kkgj/recordvideo/";
+    //传递需要浏览的图片
+    private List<String> picList = new ArrayList<>();
 
     private static class SingleHolder implements Serializable {
         static final PicConstant instance = new PicConstant();
@@ -25,8 +27,6 @@ public class PicConstant implements Serializable {
         return SingleHolder.instance;
     }
 
-    //传递需要浏览的图片
-    private List<String> picList = new ArrayList<>();
 
     public List<String> getPicList() {
         return picList;
@@ -42,6 +42,14 @@ public class PicConstant implements Serializable {
         }
     }
 
+    public String getRecordVideo() {
+        return mRecordVideo;
+    }
+
+    public void setRecordVideo(String mRecordVideo) {
+        this.mRecordVideo = mRecordVideo;
+    }
+
     public String getCameraPath() {
         return mCameraPath;
     }
@@ -52,5 +60,17 @@ public class PicConstant implements Serializable {
 
     public String getCropPath() {
         return mCropPath;
+    }
+
+    public void setCameraPath(String path) {
+        mCameraPath = path;
+    }
+
+    public void setCopyPath(String mCopyPath) {
+        this.mCopyPath = mCopyPath;
+    }
+
+    public void setCropPath(String mCropPath) {
+        this.mCropPath = mCropPath;
     }
 }

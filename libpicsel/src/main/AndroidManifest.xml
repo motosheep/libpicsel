@@ -16,9 +16,11 @@
             android:name=".ui.PicBrowserActivity"
             android:theme="@android:style/Theme.NoTitleBar.Fullscreen" />
         <activity
+            android:name=".ui.PicClipActivity"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen" />
+        <activity
             android:name=".ui.PicSelectActivity"
             android:theme="@android:style/Theme.Holo.NoActionBar" />
-
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileProvider"

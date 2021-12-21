@@ -6,6 +6,7 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.provider.MediaStore;
 import android.text.TextUtils;
+import android.util.Log;
 
 import androidx.core.app.ActivityCompat;
 
@@ -35,8 +36,6 @@ public class PicSelectManager implements PicSelectApi {
     private boolean isShowGif = false;
     //是否显示视频
     private boolean isShowVideo = false;
-    //文件检查存在对象
-    private static File existFile;
 
     private static final class SingleHolder {
         static final PicSelectManager mInstance = new PicSelectManager();
@@ -50,8 +49,7 @@ public class PicSelectManager implements PicSelectApi {
     @Override
     public void init(Context context, InitCallBack callBack) {
         this.mContext = context.getApplicationContext();
-        if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
-                || ActivityCompat.checkSelfPermission(mContext, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED
+        if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED
                 || ActivityCompat.checkSelfPermission(mContext, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             if (callBack != null) {
                 callBack.NoPermission();
@@ -94,7 +92,11 @@ public class PicSelectManager implements PicSelectApi {
     private Runnable loadRunnable = new Runnable() {
         @Override
         public void run() {
-            loadDataByCursor();
+            try {
+                loadDataByCursor();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     };
 
@@ -102,13 +104,14 @@ public class PicSelectManager implements PicSelectApi {
      * 加载数据的函数
      * change by lzt 20200515 增加是否过滤gif的处理逻辑
      */
-    private void loadDataByCursor() {
+    private void loadDataByCursor() throws Exception {
         //获取图片数据
         Cursor picCursor = mContext.getContentResolver().query(
                 MediaStore.Images.Media.EXTERNAL_CONTENT_URI, null, null, null, null);
         List<String> picName = new ArrayList();
         List<String> picFileName = new ArrayList();
         List<Integer> picDate = new ArrayList<>();
+        List<PicInfo> cacheRes = new ArrayList<>();
         while (picCursor.moveToNext()) {
             //获取图片的名称
             String name = picCursor.getString(picCursor.getColumnIndex(MediaStore.Images.Media.DISPLAY_NAME));
@@ -129,7 +132,11 @@ public class PicSelectManager implements PicSelectApi {
             picDate.add(date);
             picFileName.add(new String(data, 0, data.length - 1));
         }
-        List<PicInfo> result = new ArrayList<>();
+        //合并数据__图片
+        for (int i = 0; i < picName.size(); i++) {
+            PicInfo info = new PicInfo(picName.get(i), picFileName.get(i), picDate.get(i), 1);
+            cacheRes.add(info);
+        }
         //获取视频数据
         if (isShowVideo) {
             List<String> videoName = new ArrayList();
@@ -154,21 +161,25 @@ public class PicSelectManager implements PicSelectApi {
             //合并数据__视频
             for (int i = 0; i < videoName.size(); i++) {
                 PicInfo info = new PicInfo(videoName.get(i), videoFileName.get(i), videoDate.get(i), 2);
-                result.add(info);
+                cacheRes.add(info);
             }
         }
-        //合并数据__图片
-        for (int i = 0; i < picName.size(); i++) {
-            PicInfo info = new PicInfo(picName.get(i), picFileName.get(i), picDate.get(i), 1);
-            result.add(info);
-        }
-        //查询文件是否存在
-        for (int i = result.size() - 1; i > 0; i--) {
-            existFile = new File(result.get(i).getPath());
-            if (!existFile.exists()) {
-                result.remove(i);
+        //查询文件是否存在--文件大小是否为0
+        List<PicInfo> result = new ArrayList<>();
+        try {
+            for (int i = 0; i < cacheRes.size(); i++) {
+                File existFile = new File(cacheRes.get(i).getPath());
+                if (!existFile.exists()) {
+                    continue;
+                }
+                if (existFile.length() == 0) {
+                    continue;
+                }
+                result.add(cacheRes.get(i));
             }
-            existFile = null;
+            cacheRes.clear();
+        } catch (Exception e) {
+            Log.d(TAG, "处理文件错误:\n" + e.getMessage());
         }
         //统计目录下文件个数
         Map<String, Long> directoryCount = new HashMap<>();

@@ -16,13 +16,14 @@ import android.widget.Toast;
 import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
-import com.github.chrisbanes.photoview.PhotoView;
 import com.north.light.libpicselect.PicSelMain;
 import com.north.light.libpicselect.R;
 import com.north.light.libpicselect.bean.PicSelIntentInfo;
 import com.north.light.libpicselect.constant.IntentCode;
 import com.north.light.libpicselect.constant.PicConstant;
 import com.north.light.libpicselect.model.PicSelConfig;
+import com.north.light.libpicselect.widget.photoview.PhotoView;
+import com.north.light.libpicselect.widget.viewpager.LibPicSelViewPager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,8 +36,9 @@ import java.util.List;
  */
 public class PicBrowserActivity extends PicBaseActivity {
     private int mBrowserPos = 0;//浏览位置
+    private int mVideoPlayWay = 1;//视频播放方式：1系统自带 2开发者自定义
     private static final String TAG = PicBrowserActivity.class.getName();
-    private ViewPager mViewPager;
+    private LibPicSelViewPager mViewPager;
     private List<PhotoView> mViewList = new ArrayList<>();
     private List<String> mDataList = new ArrayList<>();
     private ImageView mBack;
@@ -55,7 +57,7 @@ public class PicBrowserActivity extends PicBaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_pic_browser);
+        setContentView(R.layout.lib_pic_activity_pic_browser);
         initView();
     }
 
@@ -65,13 +67,14 @@ public class PicBrowserActivity extends PicBaseActivity {
         selLimit = getIntent().getIntExtra(IntentCode.BROWSER_SEL_LIMIT, 9);
         mDataList = PicConstant.getInstance().getPicList();
         mBrowserPos = getIntent().getIntExtra(IntentCode.BROWSER_POSITION, 0);
-        mViewPager = findViewById(R.id.activity_pic_browser_viewpager);
-        mBack = findViewById(R.id.activity_pic_browser_back);
-        mConfirm = findViewById(R.id.activity_pic_browser_confirm);
-        mCheckBox = findViewById(R.id.activity_pic_browser_checkbox);
-        mSelTips = findViewById(R.id.activity_pic_browser_tips);
-        mPlayBt = findViewById(R.id.activity_pic_browser_play_video);
-        mSelTips.setText(String.format(getResources().getString(R.string.pic_select_activity_checkbox_count), 0, selLimit));
+        mVideoPlayWay = getIntent().getIntExtra(IntentCode.BROWSER_VIDEO_WAY, 1);
+        mViewPager = findViewById(R.id.lib_pic_activity_pic_browser_viewpager);
+        mBack = findViewById(R.id.lib_pic_activity_pic_browser_back);
+        mConfirm = findViewById(R.id.lib_pic_activity_pic_browser_confirm);
+        mCheckBox = findViewById(R.id.lib_pic_activity_pic_browser_checkbox);
+        mSelTips = findViewById(R.id.lib_pic_activity_pic_browser_tips);
+        mPlayBt = findViewById(R.id.lib_pic_activity_pic_browser_play_video);
+        mSelTips.setText(String.format(getResources().getString(R.string.lib_pic_pic_select_activity_checkbox_count), 0, selLimit));
         if (isShowSelMode) {
             mCheckBox.setVisibility(View.VISIBLE);
             mSelTips.setVisibility(View.VISIBLE);
@@ -96,10 +99,10 @@ public class PicBrowserActivity extends PicBaseActivity {
             }
         });
         for (String result : mDataList) {
-            if (!TextUtils.isEmpty(result)) {
-                PhotoView photoView = new PhotoView(this);
-                mViewList.add(photoView);
-            }
+//            if (!TextUtils.isEmpty(result)) {
+            PhotoView photoView = new PhotoView(this);
+            mViewList.add(photoView);
+//            }
         }
         mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
@@ -116,7 +119,7 @@ public class PicBrowserActivity extends PicBaseActivity {
                     isVideo(path);
                     mCheckBox.setChecked(isSel);
                     updateSelCount();
-                }else{
+                } else {
                     //非选择模式--只更新播放按钮视觉
                     String path = mDataList.get(i);
                     isVideo(path);
@@ -156,12 +159,18 @@ public class PicBrowserActivity extends PicBaseActivity {
                 //播放视频
                 try {
                     String path = mDataList.get(mViewPager.getCurrentItem());
-                    if (path.contains("http")) {
-                        PicSelMain.getInstance().playNetVideo(mDataList.get(mViewPager.getCurrentItem())
-                                , PicBrowserActivity.this);
-                    } else {
-                        PicSelMain.getInstance().playLocalVideo(mDataList.get(mViewPager.getCurrentItem())
-                                , PicBrowserActivity.this);
+                    if (mVideoPlayWay == 1) {
+                        //系统默认
+                        if (path.contains("http")) {
+                            PicSelMain.getInstance().playNetVideo(mDataList.get(mViewPager.getCurrentItem())
+                                    , PicBrowserActivity.this);
+                        } else {
+                            PicSelMain.getInstance().playLocalVideo(mDataList.get(mViewPager.getCurrentItem())
+                                    , PicBrowserActivity.this);
+                        }
+                    } else if (mVideoPlayWay == 2) {
+                        //自定义播放--广播
+                        PicSelMain.getInstance().sendPlayUrlIntent(PicBrowserActivity.this, path);
                     }
                 } catch (Exception e) {
                     Log.d(TAG, "mPlayBt e: " + e.getMessage());
@@ -181,13 +190,21 @@ public class PicBrowserActivity extends PicBaseActivity {
             } catch (Exception e) {
                 Log.d(TAG, "设置默认选中逻辑error: " + e.getMessage());
             }
+        } else if (!isShowSelMode && mBrowserPos == 0) {
+            try {
+                //非选择模式下，检查第一个资源
+                String path = mDataList.get(0);
+                isVideo(path);
+            } catch (Exception e) {
+                Log.d(TAG, "设置默认选中逻辑error: " + e.getMessage());
+            }
         }
     }
 
     //更新选中个数
     private void updateSelCount() {
         int count = PicSelIntentInfo.getInstance().selCount();
-        mSelTips.setText(String.format(getResources().getString(R.string.pic_browser_activity_checkbox_count), count, selLimit));
+        mSelTips.setText(String.format(getResources().getString(R.string.lib_pic_pic_browser_activity_checkbox_count), count, selLimit));
     }
 
 
@@ -222,8 +239,12 @@ public class PicBrowserActivity extends PicBaseActivity {
         @Override
         public Object instantiateItem(ViewGroup container, int position) {
             container.addView(mViewList.get(position));
-            if (PicSelConfig.getInstance().getbindListener() != null)
-                PicSelConfig.getInstance().getbindListener().BindImageView(mDataList.get(position), mViewList.get(position));
+            try {
+                if (PicSelConfig.getInstance().getbindListener() != null)
+                    PicSelConfig.getInstance().getbindListener().BindImageView(mDataList.get(position), mViewList.get(position));
+            } catch (Exception e) {
+                Log.d(TAG, "instantiateItem error: " + e.getMessage());
+            }
             return mViewList.get(position);
         }
 

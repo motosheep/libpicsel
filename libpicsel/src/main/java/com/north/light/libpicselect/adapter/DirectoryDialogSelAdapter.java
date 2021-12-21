@@ -47,7 +47,7 @@ public class DirectoryDialogSelAdapter extends RecyclerView.Adapter<DirectoryDia
     @NonNull
     @Override
     public PicHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new PicHolder(LayoutInflater.from(mContext).inflate(R.layout.item_dialog_directory_content, parent, false));
+        return new PicHolder(LayoutInflater.from(mContext).inflate(R.layout.lib_pic_item_dialog_directory_content, parent, false));
     }
 
     @Override
@@ -89,9 +89,9 @@ public class DirectoryDialogSelAdapter extends RecyclerView.Adapter<DirectoryDia
 
         public PicHolder(@NonNull View itemView) {
             super(itemView);
-            mImage = itemView.findViewById(R.id.item_dialog_directory_content_image);
-            mTitle = itemView.findViewById(R.id.item_dialog_directory_content_text);
-            mPLayout = itemView.findViewById(R.id.item_dialog_directory_content_pLayout);
+            mImage = itemView.findViewById(R.id.lib_pic_item_dialog_directory_content_image);
+            mTitle = itemView.findViewById(R.id.lib_pic_item_dialog_directory_content_text);
+            mPLayout = itemView.findViewById(R.id.lib_pic_item_dialog_directory_content_pLayout);
         }
     }
 

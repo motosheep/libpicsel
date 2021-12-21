@@ -54,11 +54,12 @@ public class PicSelectActivity extends PicBaseActivity {
     private boolean isShowCamera;//是否显示相机图标
     private boolean isShowGif;//显示gif标识
     private boolean isShowVideo;//显示视频标识
+    private boolean isCusCamera;//自定义相机标识
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_pic_select);
+        setContentView(R.layout.lib_pic_activity_pic_select);
         initView();
         initData();
     }
@@ -68,11 +69,12 @@ public class PicSelectActivity extends PicBaseActivity {
         isShowCamera = getIntent().getBooleanExtra(IntentCode.PIC_SEL_DATA_NEED_CAMERA, false);//相机显示标识
         isShowGif = getIntent().getBooleanExtra(IntentCode.PIC_SEL_DATA_SHOW_GIF, false);//gif显示标识
         isShowVideo = getIntent().getBooleanExtra(IntentCode.PIC_SEL_DATA_SHOW_VIDEO, false);//视频显示标识
+        isCusCamera = getIntent().getBooleanExtra(IntentCode.PIC_SEL_DATA_CUS_CAMERA, false);//自定义相机标识
         if (mLimit > 9) mLimit = 9;
-        mContent = findViewById(R.id.activity_pic_sel_recy);
-        mBack = findViewById(R.id.activity_pic_sel_back);
-        mTitle = findViewById(R.id.activity_pic_sel_title);
-        mConfirm = findViewById(R.id.activity_pic_sel_confirm);
+        mContent = findViewById(R.id.lib_pic_activity_pic_sel_recy);
+        mBack = findViewById(R.id.lib_pic_activity_pic_sel_back);
+        mTitle = findViewById(R.id.lib_pic_activity_pic_sel_title);
+        mConfirm = findViewById(R.id.lib_pic_activity_pic_sel_confirm);
         mContent.setLayoutManager(new GridLayoutManager(this, 4));
         mAdapter = new PicSelAdapter(this, isShowCamera);
         mAdapter.setSelectLimie(mLimit);
@@ -147,7 +149,13 @@ public class PicSelectActivity extends PicBaseActivity {
             @Override
             public void camera() {
                 //拍照
-                PicSelMain.getInstance().takePic(PicSelectActivity.this, 0);
+                if (isCusCamera) {
+                    //回调，并结束当前页面
+                    PicSelMain.getInstance().sendCusCameraIntent(PicSelectActivity.this);
+                    finish();
+                } else {
+                    PicSelMain.getInstance().takePic(PicSelectActivity.this, 0);
+                }
             }
         });
         PicSelectManager.getInstance().setOnResultListener(new PicSelectManager.OnResultListener() {
@@ -176,7 +184,6 @@ public class PicSelectActivity extends PicBaseActivity {
         PicSelectManager.getInstance().init(this, new PicSelectApi.InitCallBack() {
             @Override
             public void NoPermission() {
-                Toast.makeText(PicSelectActivity.this.getApplicationContext(), "权限不足", Toast.LENGTH_SHORT).show();
                 finish();
             }
 
@@ -274,7 +281,7 @@ public class PicSelectActivity extends PicBaseActivity {
     private void updateSelCount() {
         if (mAdapter != null) {
             int selSize = mAdapter.getSelectInfo().size();
-            mConfirm.setText(String.format(getResources().getString(R.string.pic_select_activity_checkbox_count),
+            mConfirm.setText(String.format(getResources().getString(R.string.lib_pic_pic_select_activity_checkbox_count),
                     selSize, mLimit));
         }
     }

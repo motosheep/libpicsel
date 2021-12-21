@@ -5,24 +5,24 @@
     android:layout_height="wrap_content">
 
     <ImageView
-        android:id="@+id/item_main_content_image"
+        android:id="@+id/lib_pic_item_main_content_image"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scaleType="centerCrop" />
 
     <CheckBox
-        android:id="@+id/item_main_content_checkbox"
+        android:id="@+id/lib_pic_item_main_content_checkbox"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_alignParentRight="true"
-        android:background="@drawable/selector_pic_select"
+        android:background="@drawable/lib_pic_selector_pic_select"
         android:button="@null"
         android:paddingTop="6dp"
         android:paddingRight="2dp" />
 
     <TextView
-        android:id="@+id/item_main_content_source"
+        android:id="@+id/lib_pic_item_main_content_source"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"

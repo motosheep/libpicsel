@@ -4,7 +4,10 @@ import static android.app.Activity.RESULT_OK;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -20,18 +23,20 @@ import com.north.light.libpicselect.constant.IntentCode;
 import com.north.light.libpicselect.constant.PicConstant;
 import com.north.light.libpicselect.model.PicSelConfig;
 import com.north.light.libpicselect.ui.PicBrowserActivity;
+import com.north.light.libpicselect.ui.PicClipActivity;
 import com.north.light.libpicselect.ui.PicSelectActivity;
 import com.north.light.libpicselect.ui.VideoRecordActivity;
 import com.north.light.libpicselect.utils.FileUtils;
 import com.north.light.libpicselect.utils.HandlerManager;
+import com.north.light.libpicselect.utils.LibPicSelStringUtils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Created by lzt
@@ -46,10 +51,14 @@ import java.util.List;
 public class PicSelMain {
     private static final String TAG = PicSelMain.class.getName();
     private Uri mCurUrl;//图片拍照url
-    private String takePicPath;//图片拍照路径
-    private String corpPicPath;//图片剪裁路径
+    private String takePicPath;//系统图片拍照路径
+    private String corpPicPath;//系统图片剪裁路径
+    private String corpCusPicOrgPath;//自定义图片剪裁原图路径
+    private String corpCusPicTarPath;//自定义图片剪裁目标路径
     //选择的图片中转list
     private static volatile ArrayList<String> finalList = new ArrayList<>();
+    private CopyOnWriteArrayList<PlayVideoListener> videoListener = new CopyOnWriteArrayList<>();
+    private CopyOnWriteArrayList<CusCameraListener> cameraListener = new CopyOnWriteArrayList<>();
 
     private static final class SingleHolder {
         private static final PicSelMain mInstance = new PicSelMain();
@@ -66,16 +75,8 @@ public class PicSelMain {
      *
      * @param isTakeCamera 是否使用相机拍照
      */
-    public void getPicSingle(boolean isTakeCamera, Activity activity, boolean showCamera) {
-        if (isTakeCamera) {
-            takePic(activity, 0);
-        } else {
-            //进入三方图片选择
-            Intent intent1 = new Intent(activity, PicSelectActivity.class);
-            intent1.putExtra(IntentCode.PIC_SEL_DATA_LIMIT, 1);
-            intent1.putExtra(IntentCode.PIC_SEL_DATA_NEED_CAMERA, showCamera);
-            activity.startActivityForResult(intent1, IntentCode.PIC_SEL_REQ);
-        }
+    public void getPicSingle(boolean isTakeCamera, Activity activity, boolean showCamera, boolean cusCamera) {
+        getPicVideoMul(isTakeCamera, activity, 1, showCamera, false, cusCamera);
     }
 
     /**
@@ -91,22 +92,14 @@ public class PicSelMain {
      * 多个
      */
     public void getPicMul(boolean isTakeCamera, Activity activity, int size, boolean showCamera) {
-        if (isTakeCamera) {
-            takePic(activity, 0);
-        } else {
-            //进入三方图片选择
-            Intent intent1 = new Intent(activity, PicSelectActivity.class);
-            intent1.putExtra(IntentCode.PIC_SEL_DATA_LIMIT, size);
-            intent1.putExtra(IntentCode.PIC_SEL_DATA_NEED_CAMERA, showCamera);
-            activity.startActivityForResult(intent1, IntentCode.PIC_SEL_REQ);
-        }
+        getPicVideoMul(isTakeCamera, activity, size, showCamera, false, false);
     }
 
     /**
      * 获取多个图片or视频
      */
     public void getPicVideoMul(boolean isTakeCamera, Activity activity, int size, boolean showCamera
-            , boolean showVideo) {
+            , boolean showVideo, boolean cusCamera) {
         if (isTakeCamera) {
             takePic(activity, 0);
         } else {
@@ -115,6 +108,7 @@ public class PicSelMain {
             intent1.putExtra(IntentCode.PIC_SEL_DATA_LIMIT, size);
             intent1.putExtra(IntentCode.PIC_SEL_DATA_NEED_CAMERA, showCamera);
             intent1.putExtra(IntentCode.PIC_SEL_DATA_SHOW_VIDEO, showVideo);
+            intent1.putExtra(IntentCode.PIC_SEL_DATA_CUS_CAMERA, cusCamera);
             activity.startActivityForResult(intent1, IntentCode.PIC_SEL_REQ);
         }
     }
@@ -129,9 +123,8 @@ public class PicSelMain {
      * @return false没有权限 true有权限
      */
     public boolean recordVideo(Activity activity, int second) {
-        if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
-                || ActivityCompat.checkSelfPermission(activity, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED
-                || ActivityCompat.checkSelfPermission(activity, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
+                || ActivityCompat.checkSelfPermission(activity, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             return false;
         }
         Intent intent1 = new Intent(activity, VideoRecordActivity.class);
@@ -208,14 +201,31 @@ public class PicSelMain {
             } else {
                 inputUrl = Uri.fromFile(new File(filePath));
             }
-            // 设置剪裁数据 150*150
+            // 设置剪裁数据
+            intent.putExtra("scale", true);//去除黑边
+            intent.putExtra("scaleUpIfNeeded", true);//去除黑边
             intent.setDataAndType(inputUrl, "image/*");
             intent.putExtra("crop", true);
             intent.putExtra("return-data", false);
-            intent.putExtra("aspectX", aspectX);
-            intent.putExtra("aspectY", aspectY);
+
             intent.putExtra("outputX", outputX);
             intent.putExtra("outputY", outputY);
+            if (aspectX == aspectY) {
+                //对称
+                String huawei = "huawei";
+                String honor = "honor";
+                String model = LibPicSelStringUtils.toNoEmptyStr(android.os.Build.MODEL).toLowerCase();
+                String manufacturer = LibPicSelStringUtils.toNoEmptyStr(android.os.Build.MANUFACTURER).toLowerCase();
+                if (model.contains(huawei) || manufacturer.contains(huawei) ||
+                        model.contains(honor) || manufacturer.contains(honor)) {
+                    //华为特殊处理 不然会显示圆
+                    intent.putExtra("aspectX", 9998);
+                    intent.putExtra("aspectY", 9999);
+                } else {
+                    intent.putExtra("aspectX", aspectX);
+                    intent.putExtra("aspectY", aspectY);
+                }
+            }
             // 上面设为false的时候将MediaStore.EXTRA_OUTPUT关联一个Uri
             intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(file));
             intent.putExtra("outputFormat", Bitmap.CompressFormat.JPEG.toString());
@@ -231,7 +241,7 @@ public class PicSelMain {
      * activity结果返回
      * change by lzt 20201023 增加选择图片时，特殊字符图片处理逻辑
      */
-    public void ActivityForResult(int requestCode, int resultCode, Intent data, final PicCallbackListener listener) {
+    public <T extends PicCallbackListener> void ActivityForResult(int requestCode, int resultCode, Intent data, final T listener) {
         if (resultCode == RESULT_OK && requestCode == IntentCode.PIC_MAIN_TAKE_PIC_RESULT) {
             try {
                 Log.d(TAG, "添加图片返回: " + takePicPath);
@@ -298,6 +308,24 @@ public class PicSelMain {
                 Log.d(TAG, "添加图片返回e: " + e);
             }
         }
+        if (requestCode == IntentCode.PIC_CROP_CODE_REQ && resultCode == IntentCode.PIC_CROP_CODE_RES) {
+            //自定义剪裁图片返回
+            try {
+                String cropPath = data.getStringExtra(IntentCode.PIC_CROP_DATA_CLIP_DATA);
+                Log.d(TAG, "自定义剪裁图片原图: " + corpCusPicOrgPath);
+                Log.d(TAG, "自定义剪裁图片目标: " + corpCusPicTarPath);
+                Log.d(TAG, "自定义剪裁图片结果: " + cropPath);
+                if (listener != null && !TextUtils.isEmpty(cropPath)) {
+                    listener.cropResult(cropPath);
+                }
+            } catch (Exception e) {
+                Log.d(TAG, "添加图片返回e: " + e);
+                //直接返回原图好了--防止出错后，不能进行后续的步骤
+                if (listener != null) {
+                    listener.cropResult(corpCusPicOrgPath);
+                }
+            }
+        }
         if (requestCode == IntentCode.VIDEO_REQ && resultCode == IntentCode.VIDEO_RES) {
             Log.d(TAG, "录制视频返回");
             try {
@@ -314,14 +342,40 @@ public class PicSelMain {
 
     //浏览图片
     public void browsePic(List<String> picList, Activity activity, int pos) {
+        browsePic(picList, activity, pos, 1);
+    }
+
+    public void browsePic(List<String> picList, Activity activity, int pos, int videoWay) {
         if (picList == null || picList.size() == 0) {
             return;
         }
         Intent intent = new Intent(activity, PicBrowserActivity.class);
         PicConstant.getInstance().setPicList(picList);
         intent.putExtra(IntentCode.BROWSER_POSITION, pos);
+        intent.putExtra(IntentCode.BROWSER_VIDEO_WAY, videoWay);
         activity.startActivity(intent);
     }
+
+    /**
+     * 发送播放视频url的广播--内部调用
+     */
+    public void sendPlayUrlIntent(Context context, String path) {
+        Intent dataIntent = new Intent();
+        dataIntent.setAction(IntentCode.BROWSER_PIC_SEL_BROADCAST_INTENT);
+        dataIntent.putExtra(IntentCode.BROWSER_PIC_SEL_BROADCAST_TYPE, 1);
+        dataIntent.putExtra(IntentCode.BROWSER_VIDEO_BROADCAST_DATA, path);
+        context.getApplicationContext().sendBroadcast(dataIntent);
+    }
+    /**
+     * 发送使用自定义相机--内部调用
+     */
+    public void sendCusCameraIntent(Context context) {
+        Intent dataIntent = new Intent();
+        dataIntent.setAction(IntentCode.BROWSER_PIC_SEL_BROADCAST_INTENT);
+        dataIntent.putExtra(IntentCode.BROWSER_PIC_SEL_BROADCAST_TYPE, 2);
+        context.getApplicationContext().sendBroadcast(dataIntent);
+    }
+
 
     //播放本地视频
     public void playLocalVideo(String path, Activity activity) {
@@ -364,6 +418,111 @@ public class PicSelMain {
     }
 
     /**
+     * 初始化广播接收
+     */
+    private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            try {
+                String action = intent.getAction();
+                int type = intent.getIntExtra(IntentCode.BROWSER_PIC_SEL_BROADCAST_TYPE, -1);
+                if (!TextUtils.isEmpty(action) && type != -1) {
+                    if (type == 1) {
+                        String playLink = intent.getStringExtra(IntentCode.BROWSER_VIDEO_BROADCAST_DATA);
+                        if (TextUtils.isEmpty(playLink)) {
+                            return;
+                        }
+                        //播放视频
+                        for (PlayVideoListener listener : videoListener) {
+                            listener.playVideo(playLink);
+                        }
+                    } else if (type == 2) {
+                        //自定义相机
+                        for (CusCameraListener listener : cameraListener) {
+                            listener.cusCamera();
+                        }
+                    }
+                }
+            } catch (Exception e) {
+
+            }
+        }
+    };
+
+    /**
+     * 初始化广播
+     */
+    public void initBroadCast(Context context) {
+        releaseBroadCast(context);
+        try {
+            IntentFilter filter = new IntentFilter();
+            filter.addAction(IntentCode.BROWSER_PIC_SEL_BROADCAST_INTENT);
+            context.getApplicationContext().registerReceiver(broadcastReceiver, filter);
+        } catch (Exception e) {
+
+        }
+    }
+
+    /**
+     * 释放广播
+     */
+    public void releaseBroadCast(Context context) {
+        try {
+            context.getApplicationContext().unregisterReceiver(broadcastReceiver);
+        } catch (Exception e) {
+
+        }
+    }
+
+    /**
+     * 自定义view剪裁图片--未经充分测试，慎用
+     */
+    public void cropCus(Activity activity, String filePath, int widthRate, int heightRate) {
+        try {
+            corpCusPicOrgPath = filePath;
+            corpCusPicTarPath = PicConstant.getInstance().getCropPath() + System.currentTimeMillis() + ".jpg";
+            Intent intent = new Intent(activity, PicClipActivity.class);
+            intent.putExtra(IntentCode.PIC_CROP_DATA_ORG_PATH, filePath);
+            intent.putExtra(IntentCode.PIC_CROP_DATA_TAR_PATH, corpCusPicTarPath);
+            intent.putExtra(IntentCode.PIC_CROP_PIC_RATE_WIDTH, widthRate);
+            intent.putExtra(IntentCode.PIC_CROP_PIC_RATE_HEIGHT, heightRate);
+            activity.startActivityForResult(intent, IntentCode.PIC_CROP_CODE_REQ);
+        } catch (Exception e) {
+
+        }
+    }
+
+    //路径--------------------------------------------------------------------------------------
+
+    /**
+     * 设置录像路径
+     */
+    public void setRecordVideoPath(String path) {
+        PicConstant.getInstance().setRecordVideo(path);
+    }
+
+    /**
+     * 设置拍摄图片的路径
+     */
+    public void setCameraPicPath(String path) {
+        PicConstant.getInstance().setCameraPath(path);
+    }
+
+    /**
+     * 设置剪裁的路径
+     */
+    public void setCropPicPath(String path) {
+        PicConstant.getInstance().setCropPath(path);
+    }
+
+    /**
+     * 设置图片复制路径
+     */
+    public void setCopyPicPath(String path) {
+        PicConstant.getInstance().setCopyPath(path);
+    }
+
+    /**
      * bitmap保存本地方法
      * change by lzt 20201112 通知本地媒体类更新数据
      */
@@ -376,17 +535,22 @@ public class PicSelMain {
         try {
             FileOutputStream out = new FileOutputStream(f);
             bm.compress(Bitmap.CompressFormat.PNG, 90, out);
+            Log.i(TAG, "已经保存");
+            try {
+//                MediaStore.Images.Media.insertImage(
+//                        PicSelConfig.getInstance().getContext().getContentResolver(),
+//                        f.getAbsolutePath(), f.getName(), null);
+//                PicSelConfig.getInstance().getContext().sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE,
+//                        Uri.parse("file://" + f.getAbsolutePath())));
+            } catch (Exception e) {
+
+            }
             out.flush();
             out.close();
-            Log.i(TAG, "已经保存");
-            MediaStore.Images.Media.insertImage(PicSelConfig.getInstance().getContext().getContentResolver(),
-                    bm, "", "");
-            PicSelConfig.getInstance().getContext().sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE,
-                    Uri.parse("file://" + f.getAbsolutePath())));
             return path;
         } catch (FileNotFoundException e) {
             e.printStackTrace();
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return "";
@@ -406,4 +570,30 @@ public class PicSelMain {
         //录制视频
         void recordVideoPath(String path);
     }
+
+    public interface PlayVideoListener {
+        void playVideo(String url);
+    }
+
+    public void setPlayVideoListener(PlayVideoListener playVideoListener) {
+        videoListener.add(playVideoListener);
+    }
+
+    public void removePlayVideoListener(PlayVideoListener playVideoListener) {
+        videoListener.remove(playVideoListener);
+    }
+
+    public interface CusCameraListener {
+        void cusCamera();
+    }
+
+    public void setCusCameraListener(CusCameraListener cusCameraListener) {
+        cameraListener.add(cusCameraListener);
+    }
+
+    public void removeCusCameraListener(CusCameraListener cusCameraListener) {
+        cameraListener.remove(cusCameraListener);
+    }
+
+
 }

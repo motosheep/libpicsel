@@ -83,7 +83,7 @@ public class PicSelAdapter extends RecyclerView.Adapter<PicSelAdapter.PicHolder>
     @NonNull
     @Override
     public PicHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new PicHolder(LayoutInflater.from(mContext).inflate(R.layout.item_main_content, parent, false));
+        return new PicHolder(LayoutInflater.from(mContext).inflate(R.layout.lib_pic_item_main_content, parent, false));
     }
 
     @Override
@@ -101,7 +101,7 @@ public class PicSelAdapter extends RecyclerView.Adapter<PicSelAdapter.PicHolder>
         //设置图片显示通用宽高-----------------
         if (isShowCamera && i == 0) {
             holder.mCheckBox.setVisibility(View.GONE);
-            holder.mImage.setImageResource(R.drawable.ic_camera_alt_black_24dp);
+            holder.mImage.setImageResource(R.drawable.lib_pic_ic_camera_alt_black_24dp);
             holder.mImage.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -183,9 +183,9 @@ public class PicSelAdapter extends RecyclerView.Adapter<PicSelAdapter.PicHolder>
 
         public PicHolder(@NonNull View itemView) {
             super(itemView);
-            mImage = itemView.findViewById(R.id.item_main_content_image);
-            mCheckBox = itemView.findViewById(R.id.item_main_content_checkbox);
-            mSource = itemView.findViewById(R.id.item_main_content_source);
+            mImage = itemView.findViewById(R.id.lib_pic_item_main_content_image);
+            mCheckBox = itemView.findViewById(R.id.lib_pic_item_main_content_checkbox);
+            mSource = itemView.findViewById(R.id.lib_pic_item_main_content_source);
         }
     }
 

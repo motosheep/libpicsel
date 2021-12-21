@@ -105,60 +105,68 @@ public class FileUtils implements Serializable {
      * @param filePath 要删除的目录的文件路径
      * @return 目录删除成功返回true，否则返回false
      */
-    private static boolean deleteDirectory(String filePath) {
-        // 如果dir不以文件分隔符结尾，自动添加文件分隔符
-        if (!filePath.endsWith(File.separator))
-            filePath = filePath + File.separator;
-        File dirFile = new File(filePath);
-        // 如果dir对应的文件不存在，或者不是一个目录，则退出
-        if ((!dirFile.exists()) || (!dirFile.isDirectory())) {
-            return false;
-        }
-        boolean flag = true;
-        // 删除文件夹中的所有文件包括子目录
-        File[] files = dirFile.listFiles();
-        for (File file : files) {
-            // 删除子文件
-            if (file.isFile()) {
-                flag = deleteSingleFile(file.getAbsolutePath());
-                if (!flag)
-                    break;
+    public static boolean deleteDirectory(String filePath) {
+        try {
+            // 如果dir不以文件分隔符结尾，自动添加文件分隔符
+            if (!filePath.endsWith(File.separator))
+                filePath = filePath + File.separator;
+            File dirFile = new File(filePath);
+            // 如果dir对应的文件不存在，或者不是一个目录，则退出
+            if ((!dirFile.exists()) || (!dirFile.isDirectory())) {
+                return false;
             }
-            // 删除子目录
-            else if (file.isDirectory()) {
-                flag = deleteDirectory(file
-                        .getAbsolutePath());
-                if (!flag)
-                    break;
+            boolean flag = true;
+            // 删除文件夹中的所有文件包括子目录
+            File[] files = dirFile.listFiles();
+            for (File file : files) {
+                // 删除子文件
+                if (file.isFile()) {
+                    flag = deleteSingleFile(file.getAbsolutePath());
+                    if (!flag)
+                        break;
+                }
+                // 删除子目录
+                else if (file.isDirectory()) {
+                    flag = deleteDirectory(file
+                            .getAbsolutePath());
+                    if (!flag)
+                        break;
+                }
             }
-        }
-        if (!flag) {
-            return false;
-        }
-        // 删除当前目录
-        if (dirFile.delete()) {
-            return true;
-        } else {
+            if (!flag) {
+                return false;
+            }
+            // 删除当前目录
+            if (dirFile.delete()) {
+                return true;
+            } else {
+                return false;
+            }
+        } catch (Exception e) {
             return false;
         }
     }
 
 
     public static void createFile(File file, boolean isFile) {// 创建文件
-        if (!file.exists()) {// 如果文件不存在
-            if (!file.getParentFile().exists()) {// 如果文件父目录不存在
-                createFile(file.getParentFile(), false);
-            } else {// 存在文件父目录
-                if (isFile) {// 创建文件
-                    try {
-                        file.createNewFile();// 创建新文件
-                    } catch (IOException e) {
-                        e.printStackTrace();
+        try{
+            if (!file.exists()) {// 如果文件不存在
+                if (!file.getParentFile().exists()) {// 如果文件父目录不存在
+                    createFile(file.getParentFile(), false);
+                } else {// 存在文件父目录
+                    if (isFile) {// 创建文件
+                        try {
+                            file.createNewFile();// 创建新文件
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    } else {
+                        file.mkdir();// 创建目录
                     }
-                } else {
-                    file.mkdir();// 创建目录
                 }
             }
+        }catch (Exception e){
+
         }
     }
 }

@@ -13,6 +13,7 @@ import android.provider.MediaStore;
 
 import com.north.light.libpicselect.R;
 import com.north.light.libpicselect.constant.IntentCode;
+import com.north.light.libpicselect.constant.PicConstant;
 
 /**
  * 视频录制activity
@@ -22,10 +23,10 @@ public class VideoRecordActivity extends PicBaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_vedio_record);
+        setContentView(R.layout.lib_pic_activity_vedio_record);
         int second = getIntent().getIntExtra(IntentCode.VIDEO_RECODE_SECOND, 10);
         Intent intent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
-        intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 0);
+        intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1);
         intent.putExtra(MediaStore.EXTRA_DURATION_LIMIT, second);
         startActivityForResult(intent, IntentCode.VIDEO_RECORD_RESULT_CODE);
     }
@@ -45,6 +46,8 @@ public class VideoRecordActivity extends PicBaseActivity {
             } catch (Exception e) {
                 finish();
             }
+        }else{
+            finish();
         }
     }
 
@@ -61,7 +64,7 @@ public class VideoRecordActivity extends PicBaseActivity {
                 final String type = split[0];
 
                 if ("primary".equalsIgnoreCase(type)) {
-                    return Environment.getExternalStorageDirectory() + "/" + split[1];
+                    return PicConstant.getInstance().getRecordVideo() + "/" + split[1];
                 }
             }
             // DownloadsProvider
