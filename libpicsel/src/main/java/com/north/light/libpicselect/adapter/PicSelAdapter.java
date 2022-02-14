@@ -1,8 +1,7 @@
 package com.north.light.libpicselect.adapter;
 
 import android.content.Context;
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,13 +12,21 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.north.light.libpicselect.R;
 import com.north.light.libpicselect.bean.PicInfo;
+import com.north.light.libpicselect.bean.PicSelCacheInfo;
 import com.north.light.libpicselect.utils.CloneUtils;
 import com.north.light.libpicselect.utils.PicScreenUtils;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * create by lzt
@@ -37,6 +44,8 @@ public class PicSelAdapter extends RecyclerView.Adapter<PicSelAdapter.PicHolder>
 
     private int mSelectLimit = 9;//默认可选9个
     private boolean isShowCamera;//是否显示相机的标识
+    //选择的图片数据---中间缓存
+    private Map<String, Long> mSelInfo = new HashMap<>();
 
 
     public PicSelAdapter(Context mContext, boolean isShowCamera) {
@@ -55,6 +64,7 @@ public class PicSelAdapter extends RecyclerView.Adapter<PicSelAdapter.PicHolder>
         }
         List<PicInfo> result = CloneUtils.cloneObjectSer(data);
         mResult.clear();
+        mSelInfo.clear();
         //需要防止对象引用
         for (PicInfo cache : result) {
             PicInfo arg = new PicInfo();
@@ -69,12 +79,33 @@ public class PicSelAdapter extends RecyclerView.Adapter<PicSelAdapter.PicHolder>
         notifyDataSetChanged();
     }
 
-    //获取选中的数据
+    /**
+     * 获取选中的数据
+     * 遍历选中数据的集合--直接返回
+     */
     public List<String> getSelectInfo() {
+        if (mSelInfo.size() == 0) {
+            return new ArrayList<>();
+        }
         List<String> result = new ArrayList<>();
-        for (PicInfo cache : mResult) {
-            if (cache.isSelect()) {
-                result.add(cache.getPath());
+        List<PicSelCacheInfo> picSelInfoList = new ArrayList<>();
+        for (Map.Entry<String, Long> cache : mSelInfo.entrySet()) {
+            long clickTime = cache.getValue();
+            String clickPath = cache.getKey();
+            picSelInfoList.add(new PicSelCacheInfo(clickPath, clickTime));
+        }
+        //排序
+        Collections.sort(picSelInfoList, new Comparator<PicSelCacheInfo>() {
+            @Override
+            public int compare(PicSelCacheInfo o1, PicSelCacheInfo o2) {
+                return (int) (o1.getClickTime() - o2.getClickTime());
+            }
+        });
+        //遍历数据，取值
+        for (PicSelCacheInfo info : picSelInfoList) {
+            String path = info.getPath();
+            if (!TextUtils.isEmpty(path)) {
+                result.add(path);
             }
         }
         return result;
@@ -123,11 +154,11 @@ public class PicSelAdapter extends RecyclerView.Adapter<PicSelAdapter.PicHolder>
                 holder.mCheckBox.setChecked(false);
             }
             //数据源判断
-            if(mResult.get(position).getSource() == 2){
+            if (mResult.get(position).getSource() == 2) {
                 //视频源
                 holder.mSource.setText("视频");
                 holder.mSource.setVisibility(View.VISIBLE);
-            }else{
+            } else {
                 //非视频源
                 holder.mSource.setVisibility(View.GONE);
             }
@@ -144,12 +175,21 @@ public class PicSelAdapter extends RecyclerView.Adapter<PicSelAdapter.PicHolder>
                         if (selectCount < mSelectLimit) {
                             //可以选择
                             mResult.get(position).setSelect(true);
+                            String path = mResult.get(position).getPath();
+                            if (!TextUtils.isEmpty(path)) {
+                                mSelInfo.put(path, System.currentTimeMillis());
+                            }
                         } else {
                             holder.mCheckBox.setChecked(false);
                             //超出了上限
                             Toast.makeText(mContext.getApplicationContext(), "最多只能选择" + mSelectLimit + "个", Toast.LENGTH_SHORT).show();
                         }
                     } else {
+                        //设置选中数据
+                        String path = mResult.get(position).getPath();
+                        if (!TextUtils.isEmpty(path)) {
+                            mSelInfo.remove(path);
+                        }
                         mResult.get(position).setSelect(false);
                     }
                     //回调事件
@@ -163,7 +203,7 @@ public class PicSelAdapter extends RecyclerView.Adapter<PicSelAdapter.PicHolder>
                 public void onClick(View v) {
                     if (mOnClick != null) {
                         //区分点击的是图片还是视频
-                        mOnClick.click(mResult, position,mResult.get(position).getSource());
+                        mOnClick.click(mResult, position, mResult.get(position).getSource());
                     }
                 }
             });
