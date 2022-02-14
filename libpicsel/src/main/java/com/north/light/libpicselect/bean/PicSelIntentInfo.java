@@ -10,7 +10,10 @@ import java.util.List;
  */
 public class PicSelIntentInfo {
     private static final String TAG = PicSelIntentInfo.class.getName();
+    //浏览集合
     private volatile List<PicInfo> mIntentList = new ArrayList<>();
+    //传递需要浏览的图片
+    private List<String> picList = new ArrayList<>();
 
     private static class SingleHolder {
         static PicSelIntentInfo mInstance = new PicSelIntentInfo();
@@ -18,6 +21,20 @@ public class PicSelIntentInfo {
 
     public static PicSelIntentInfo getInstance() {
         return SingleHolder.mInstance;
+    }
+
+    public List<String> getPicList() {
+        return picList;
+    }
+
+    public void setPicList(List<String> picList) {
+        this.picList.clear();
+        if (picList == null || picList.size() == 0) {
+            return;
+        }
+        for (String pic : picList) {
+            this.picList.add(pic);
+        }
     }
 
     /**

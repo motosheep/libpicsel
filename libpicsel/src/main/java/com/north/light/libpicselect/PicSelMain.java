@@ -19,6 +19,7 @@ import android.util.Log;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.FileProvider;
 
+import com.north.light.libpicselect.bean.PicSelIntentInfo;
 import com.north.light.libpicselect.constant.IntentCode;
 import com.north.light.libpicselect.constant.PicConstant;
 import com.north.light.libpicselect.model.PicSelConfig;
@@ -268,7 +269,7 @@ public class PicSelMain {
                                 for (String pic : images) {
                                     String newPath = FileUtils.copyFileUsingFileStreams(pic, PicConstant.getInstance().getCopyPath());
                                     if (!TextUtils.isEmpty(newPath)) {
-                                        finalList.add(newPath);
+                                        finalList.add(finalList.size(),newPath);
                                     }
                                 }
                                 //add by lzt 20211109 增加情况，假设图片路径复制失败，则直接获取原图路径，兜底
@@ -350,7 +351,7 @@ public class PicSelMain {
             return;
         }
         Intent intent = new Intent(activity, PicBrowserActivity.class);
-        PicConstant.getInstance().setPicList(picList);
+        PicSelIntentInfo.getInstance().setPicList(picList);
         intent.putExtra(IntentCode.BROWSER_POSITION, pos);
         intent.putExtra(IntentCode.BROWSER_VIDEO_WAY, videoWay);
         activity.startActivity(intent);

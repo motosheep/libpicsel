@@ -15,7 +15,7 @@ public class PicInfo implements Serializable {
     private String path;//文件路径
     private String directory;//目录
     private long directoryCount;//目录下文件个数
-    private boolean isSelect = false;
+    private SelInfo isSelect = new SelInfo();
     private int date;//日期__修改日期
     private int source;//1图片 2视频
 
@@ -71,11 +71,16 @@ public class PicInfo implements Serializable {
     }
 
     public boolean isSelect() {
-        return isSelect;
+        return isSelect.isSel();
+    }
+
+    public long getSelTime(){
+        return isSelect.getSelTime();
     }
 
     public void setSelect(boolean select) {
-        isSelect = select;
+        isSelect.setSel(select);
+        isSelect.setSelTime(System.currentTimeMillis());
     }
 
     public int getDate() {
@@ -84,5 +89,29 @@ public class PicInfo implements Serializable {
 
     public void setDate(int date) {
         this.date = date;
+    }
+
+    /**
+     * 选择时间
+     */
+    public class SelInfo implements Serializable {
+        private boolean isSel = false;
+        private long selTime = 0;
+
+        public boolean isSel() {
+            return isSel;
+        }
+
+        public void setSel(boolean sel) {
+            isSel = sel;
+        }
+
+        public long getSelTime() {
+            return selTime;
+        }
+
+        public void setSelTime(long selTime) {
+            this.selTime = selTime;
+        }
     }
 }

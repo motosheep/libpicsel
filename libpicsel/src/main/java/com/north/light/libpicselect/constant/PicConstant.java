@@ -16,8 +16,7 @@ public class PicConstant implements Serializable {
     private String mCropPath = Environment.getExternalStorageDirectory() + "/kkgj/crop/";
     private String mCopyPath = Environment.getExternalStorageDirectory() + "/kkgj/copy/";
     private String mRecordVideo = Environment.getExternalStorageDirectory() + "/kkgj/recordvideo/";
-    //传递需要浏览的图片
-    private List<String> picList = new ArrayList<>();
+
 
     private static class SingleHolder implements Serializable {
         static final PicConstant instance = new PicConstant();
@@ -27,20 +26,6 @@ public class PicConstant implements Serializable {
         return SingleHolder.instance;
     }
 
-
-    public List<String> getPicList() {
-        return picList;
-    }
-
-    public void setPicList(List<String> picList) {
-        this.picList.clear();
-        if (picList == null || picList.size() == 0) {
-            return;
-        }
-        for (String pic : picList) {
-            this.picList.add(pic);
-        }
-    }
 
     public String getRecordVideo() {
         return mRecordVideo;

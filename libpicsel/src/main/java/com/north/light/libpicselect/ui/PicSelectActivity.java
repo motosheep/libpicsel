@@ -19,7 +19,6 @@ import com.north.light.libpicselect.bean.DirecotryIntentInfo;
 import com.north.light.libpicselect.bean.PicInfo;
 import com.north.light.libpicselect.bean.PicSelIntentInfo;
 import com.north.light.libpicselect.constant.IntentCode;
-import com.north.light.libpicselect.constant.PicConstant;
 import com.north.light.libpicselect.model.PicSelConfig;
 import com.north.light.libpicselect.model.PicSelectApi;
 import com.north.light.libpicselect.model.PicSelectManager;
@@ -135,7 +134,7 @@ public class PicSelectActivity extends PicBaseActivity {
                         result.add(cache.getPath());
                     }
                     //赋值对象到内存中
-                    PicConstant.getInstance().setPicList(result);
+                    PicSelIntentInfo.getInstance().setPicList(result);
                     PicBrowserActivity.launch(PicSelectActivity.this, pos, mLimit);
                 }
             }
@@ -222,11 +221,6 @@ public class PicSelectActivity extends PicBaseActivity {
         //全屏页面，确认返回
         if (requestCode == IntentCode.BROWSER_CODE_REQUEST && resultCode == IntentCode.BROWSER_CODE_RESULT_CONFIRM) {
             if (mAdapter != null) {
-                for (int i = 0; i < PicSelIntentInfo.getInstance().getPicSelList().size(); i++) {
-                    if (PicSelIntentInfo.getInstance().getPicSelList().get(i).isSelect()) {
-                        Log.d("PicSel", "pic sel: " + i);
-                    }
-                }
                 mAdapter.setData(PicSelIntentInfo.getInstance().getPicSelList());
                 updateSelCount();
                 //设置返回结果
@@ -236,6 +230,13 @@ public class PicSelectActivity extends PicBaseActivity {
                     setResult(IntentCode.PIC_SEL_RES, result);
                 }
                 finish();
+            }
+        }
+        //全屏页面，没有确定返回
+        if (requestCode == IntentCode.BROWSER_CODE_REQUEST && resultCode == IntentCode.BROWSER_CODE_RESULT) {
+            if (mAdapter != null) {
+                mAdapter.setData(PicSelIntentInfo.getInstance().getPicSelList());
+                updateSelCount();
             }
         }
         PicSelMain.getInstance().ActivityForResult(requestCode, resultCode, data, new PicSelMain.PicCallbackListener() {

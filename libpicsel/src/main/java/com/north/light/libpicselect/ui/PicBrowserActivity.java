@@ -65,7 +65,7 @@ public class PicBrowserActivity extends PicBaseActivity {
         //是否开启选择模式
         isShowSelMode = getIntent().getBooleanExtra(IntentCode.BROWSER_SHOW_SEL_MODE, false);
         selLimit = getIntent().getIntExtra(IntentCode.BROWSER_SEL_LIMIT, 9);
-        mDataList = PicConstant.getInstance().getPicList();
+        mDataList = PicSelIntentInfo.getInstance().getPicList();
         mBrowserPos = getIntent().getIntExtra(IntentCode.BROWSER_POSITION, 0);
         mVideoPlayWay = getIntent().getIntExtra(IntentCode.BROWSER_VIDEO_WAY, 1);
         mViewPager = findViewById(R.id.lib_pic_activity_pic_browser_viewpager);
