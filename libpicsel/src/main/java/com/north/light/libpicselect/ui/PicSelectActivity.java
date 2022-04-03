@@ -3,7 +3,6 @@ package com.north.light.libpicselect.ui;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -19,6 +18,7 @@ import com.north.light.libpicselect.bean.DirecotryIntentInfo;
 import com.north.light.libpicselect.bean.PicInfo;
 import com.north.light.libpicselect.bean.PicSelIntentInfo;
 import com.north.light.libpicselect.constant.IntentCode;
+import com.north.light.libpicselect.databus.DataBusManager;
 import com.north.light.libpicselect.model.PicSelConfig;
 import com.north.light.libpicselect.model.PicSelectApi;
 import com.north.light.libpicselect.model.PicSelectManager;
@@ -150,10 +150,9 @@ public class PicSelectActivity extends PicBaseActivity {
                 //拍照
                 if (isCusCamera) {
                     //回调，并结束当前页面
-                    PicSelMain.getInstance().sendCusCameraIntent(PicSelectActivity.this);
-                    finish();
+                    DataBusManager.getInstance().takeCameraCus();
                 } else {
-                    PicSelMain.getInstance().takePic(PicSelectActivity.this, 0);
+                    PicSelMain.getInstance().takeCamera(PicSelectActivity.this, false, 0);
                 }
             }
         });
@@ -197,9 +196,9 @@ public class PicSelectActivity extends PicBaseActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        //选中的目录
         if (requestCode == REQUEST_DIR_CODE && resultCode == RESULT_OK) {
             String directory = data.getStringExtra("path");
-            //选中的目录
             mTitle.setText(!TextUtils.isEmpty(directory) ? directory : "暂无标题");
             if (!TextUtils.isEmpty(directory) && mFilterData.get(directory) != null) {
                 mAdapter.setData(mFilterData.get(directory));
@@ -209,11 +208,6 @@ public class PicSelectActivity extends PicBaseActivity {
         //全屏页面，普通返回
         if (requestCode == IntentCode.BROWSER_CODE_REQUEST && resultCode == IntentCode.PIC_SEL_RES) {
             if (mAdapter != null) {
-                for (int i = 0; i < PicSelIntentInfo.getInstance().getPicSelList().size(); i++) {
-                    if (PicSelIntentInfo.getInstance().getPicSelList().get(i).isSelect()) {
-                        Log.d("PicSel", "pic sel: " + i);
-                    }
-                }
                 mAdapter.setData(PicSelIntentInfo.getInstance().getPicSelList());
                 updateSelCount();
             }
@@ -239,33 +233,9 @@ public class PicSelectActivity extends PicBaseActivity {
                 updateSelCount();
             }
         }
-        PicSelMain.getInstance().ActivityForResult(requestCode, resultCode, data, new PicSelMain.PicCallbackListener() {
-            @Override
-            public void cameraResult(String path) {
-                //拍照回调
-                List<String> pList = new ArrayList<>();
-                pList.add(path);
-                Intent result = new Intent();
-                result.putExtra(IntentCode.PIC_SEL_DATA_SELECT, (Serializable) pList);
-                setResult(IntentCode.PIC_SEL_RES, result);
-                finish();
-            }
-
-            @Override
-            public void selectResult(ArrayList<String> result) {
-
-            }
-
-            @Override
-            public void cropResult(String path) {
-
-            }
-
-            @Override
-            public void recordVideoPath(String path) {
-
-            }
-        });
+        if (requestCode == IntentCode.PIC_SEL_MID_REQ_CODE && resultCode == IntentCode.PIC_SEL_MID_RES_CODE) {
+            finish();
+        }
     }
 
     @Override

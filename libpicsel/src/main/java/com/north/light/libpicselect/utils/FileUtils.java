@@ -1,6 +1,7 @@
 package com.north.light.libpicselect.utils;
 
-import android.os.Environment;
+import android.graphics.Bitmap;
+import android.util.Log;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -17,6 +18,8 @@ import java.io.Serializable;
  * 描述：问价工具类
  */
 public class FileUtils implements Serializable {
+
+    private static final String TAG = FileUtils.class.getSimpleName();
 
     /**
      * 获取文件的后缀
@@ -149,7 +152,7 @@ public class FileUtils implements Serializable {
 
 
     public static void createFile(File file, boolean isFile) {// 创建文件
-        try{
+        try {
             if (!file.exists()) {// 如果文件不存在
                 if (!file.getParentFile().exists()) {// 如果文件父目录不存在
                     createFile(file.getParentFile(), false);
@@ -165,8 +168,43 @@ public class FileUtils implements Serializable {
                     }
                 }
             }
-        }catch (Exception e){
+        } catch (Exception e) {
 
         }
     }
+
+    /**
+     * bitmap保存本地方法
+     * change by lzt 20201112 通知本地媒体类更新数据
+     */
+    public String saveBitmap(Bitmap bm, String path) {
+        Log.e(TAG, "保存图片");
+        File f = new File(path);
+        if (!f.exists()) {
+            FileUtils.createFile(f, true);
+        }
+        try {
+            FileOutputStream out = new FileOutputStream(f);
+            bm.compress(Bitmap.CompressFormat.PNG, 90, out);
+            Log.i(TAG, "已经保存");
+            try {
+//                MediaStore.Images.Media.insertImage(
+//                        PicSelConfig.getInstance().getContext().getContentResolver(),
+//                        f.getAbsolutePath(), f.getName(), null);
+//                PicSelConfig.getInstance().getContext().sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE,
+//                        Uri.parse("file://" + f.getAbsolutePath())));
+            } catch (Exception e) {
+
+            }
+            out.flush();
+            out.close();
+            return path;
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "";
+    }
+
 }

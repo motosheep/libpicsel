@@ -69,8 +69,6 @@ public class PicClipActivity extends Activity {
                 finish();
             }
         });
-        //确认
-        boolean exist = new File("/storage/emulated/0/Android/data/com.kktohome.master/cache/kkgj/crop/1638788272738.jpg").exists();
         mConfirmBt.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {

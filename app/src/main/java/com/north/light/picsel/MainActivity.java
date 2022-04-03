@@ -1,11 +1,7 @@
 package com.north.light.picsel;
 
 import android.content.Intent;
-import android.database.Cursor;
-import android.provider.MediaStore;
 import android.os.Bundle;
-import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 
@@ -13,11 +9,11 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
+import com.north.light.libpicselect.PicCallbackListener;
 import com.north.light.libpicselect.PicSelMain;
 import com.north.light.libpicselect.model.PicSelConfig;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getName();
@@ -33,13 +29,11 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 //加载图片
-                PicSelMain.getInstance().getPicMul(false, MainActivity.this, 5, true);
+                PicSelMain.getInstance().getPic(MainActivity.this, true, 3,
+                        true, true, true);
             }
         });
-
-
-        //图片加载库
-        PicSelConfig.getInstance().setLoaderManager(this.getApplicationContext(), new PicSelConfig.BindImageViewListener() {
+        PicSelMain.getInstance().init(this.getApplicationContext(), new PicSelConfig.BindImageViewListener() {
             @Override
             public void BindImageView(String path, ImageView iv) {
                 Glide.with(MainActivity.this.getApplicationContext()).load(path).into(iv);
@@ -50,7 +44,27 @@ public class MainActivity extends AppCompatActivity {
                 Glide.with(MainActivity.this.getApplicationContext()).load(path).into(iv);
             }
         });
+        PicSelMain.getInstance().setPicCallBackListener(new PicCallbackListener() {
+            @Override
+            public void cameraResult(String path) {
 
+            }
+
+            @Override
+            public void selectResult(ArrayList<String> result) {
+
+            }
+
+            @Override
+            public void cropResult(String path) {
+
+            }
+
+            @Override
+            public void recordVideoPath(String path) {
+
+            }
+        });
         //test---------------------------------------------------------------------------------
 //        Cursor cursor = getContentResolver().query(
 //                MediaStore.Video.Media.EXTERNAL_CONTENT_URI, null, null, null, null);
@@ -75,27 +89,5 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        PicSelMain.getInstance().ActivityForResult(requestCode, resultCode, data, new PicSelMain.PicCallbackListener() {
-            @Override
-            public void cameraResult(String path) {
-                Glide.with(MainActivity.this).load(path).into(img);
-            }
-
-            @Override
-            public void selectResult(ArrayList<String> result) {
-                Glide.with(MainActivity.this).load(result.get(0)).into(img);
-            }
-
-            @Override
-            public void cropResult(String path) {
-                Glide.with(MainActivity.this).load(path).into(img);
-            }
-
-            @Override
-            public void recordVideoPath(String path) {
-                Log.d(TAG, "recordVideoPath path: " + path);
-
-            }
-        });
     }
 }

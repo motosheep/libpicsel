@@ -21,6 +21,7 @@ import com.north.light.libpicselect.R;
 import com.north.light.libpicselect.bean.PicSelIntentInfo;
 import com.north.light.libpicselect.constant.IntentCode;
 import com.north.light.libpicselect.constant.PicConstant;
+import com.north.light.libpicselect.databus.DataBusManager;
 import com.north.light.libpicselect.model.PicSelConfig;
 import com.north.light.libpicselect.widget.photoview.PhotoView;
 import com.north.light.libpicselect.widget.viewpager.LibPicSelViewPager;
@@ -160,17 +161,10 @@ public class PicBrowserActivity extends PicBaseActivity {
                 try {
                     String path = mDataList.get(mViewPager.getCurrentItem());
                     if (mVideoPlayWay == 1) {
-                        //系统默认
-                        if (path.contains("http")) {
-                            PicSelMain.getInstance().playNetVideo(mDataList.get(mViewPager.getCurrentItem())
-                                    , PicBrowserActivity.this);
-                        } else {
-                            PicSelMain.getInstance().playLocalVideo(mDataList.get(mViewPager.getCurrentItem())
-                                    , PicBrowserActivity.this);
-                        }
+                        DataBusManager.getInstance().playVideoSystem(path);
                     } else if (mVideoPlayWay == 2) {
                         //自定义播放--广播
-                        PicSelMain.getInstance().sendPlayUrlIntent(PicBrowserActivity.this, path);
+                        DataBusManager.getInstance().playVideoCus(path);
                     }
                 } catch (Exception e) {
                     Log.d(TAG, "mPlayBt e: " + e.getMessage());
