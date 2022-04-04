@@ -50,6 +50,7 @@ maven { url "https://jitpack.io" }
 //                PicSelMain.getInstance().browsePic(brList, MainActivity.this, 0, 2);
 
             }
+        }
 
 3.  数据回调配置
 
