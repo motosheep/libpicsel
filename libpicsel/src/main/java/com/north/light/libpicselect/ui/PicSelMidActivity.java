@@ -34,7 +34,7 @@ public class PicSelMidActivity extends PicBaseActivity {
     //系统图片拍照路径
     private String takePicPath;
     //系统图片剪裁路径
-    private String corpPicPath;
+    private String cropPicPath;
     //自定义图片剪裁原图路径
     private String corpCusPicOrgPath;
     //自定义图片剪裁目标路径
@@ -47,7 +47,7 @@ public class PicSelMidActivity extends PicBaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_pic_sel_mid);
+        setContentView(R.layout.lib_pic_activity_pic_sel_mid);
         initData();
     }
 
@@ -70,8 +70,8 @@ public class PicSelMidActivity extends PicBaseActivity {
             case IntentCode.PIC_SEL_REQ:
                 resultIntent = new Intent(this, PicSelectActivity.class);
                 break;
-            case IntentCode.VIDEO_REQ:
-                resultIntent = new Intent(this, VideoRecordActivity.class);
+            case IntentCode.VIDEO_RECORD_REQ:
+                resultIntent = new Intent(this, PicVideoRecordActivity.class);
                 break;
             case IntentCode.BROWSER_CODE_REQUEST:
                 resultIntent = new Intent(this, PicBrowserActivity.class);
@@ -90,14 +90,14 @@ public class PicSelMidActivity extends PicBaseActivity {
             case IntentCode.PIC_MAIN_CROP_PIC_REQUEST:
                 //系统剪裁图片--特别处理---------------------------------------------------------------
                 resultIntent = new Intent();
-                corpPicPath = midInfo.getCropPicTargetPath();
-                String cropPicPath = midInfo.getCropPicSourcePath();
-                if (TextUtils.isEmpty(takePicPath) || TextUtils.isEmpty(cropPicPath)) {
+                cropPicPath = midInfo.getCropPicTargetPath();
+                String cropPicSourcePath = midInfo.getCropPicSourcePath();
+                if (TextUtils.isEmpty(cropPicPath) || TextUtils.isEmpty(cropPicSourcePath)) {
                     Toast.makeText(this.getApplicationContext(), "剪裁数据错误", Toast.LENGTH_SHORT).show();
                     finish();
                     return;
                 }
-                File cropPicFile = new File(corpPicPath);
+                File cropPicFile = new File(cropPicPath);
                 if (!cropPicFile.getParentFile().exists()) {
                     cropPicFile.getParentFile().mkdirs();
                 }
@@ -105,9 +105,9 @@ public class PicSelMidActivity extends PicBaseActivity {
                 if (Build.VERSION.SDK_INT >= 24) {
                     inputUrl = FileProvider.getUriForFile(
                             PicSelConfig.getInstance().getContext(),
-                            PicSelConfig.getInstance().getContext().getPackageName() + ".fileProvider", new File(cropPicPath));
+                            PicSelConfig.getInstance().getContext().getPackageName() + ".fileProvider", new File(cropPicSourcePath));
                 } else {
-                    inputUrl = Uri.fromFile(new File(cropPicPath));
+                    inputUrl = Uri.fromFile(new File(cropPicSourcePath));
                 }
                 resultIntent.setDataAndType(inputUrl, "image/*");
                 resultIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(cropPicFile));
@@ -138,7 +138,14 @@ public class PicSelMidActivity extends PicBaseActivity {
                 }
                 resultIntent.putExtra(MediaStore.EXTRA_OUTPUT, mCurUrl);
                 break;
+            case IntentCode.CAMERAX_TAKE_PIC_REQ:
+                resultIntent = new Intent(this, PicTakeCameraCusActivity.class);
+                break;
+            case IntentCode.CUS_VIDEO_PLAY_REQ:
+                resultIntent = new Intent(this, PicPlayVideoActivity.class);
+                break;
             default:
+                Toast.makeText(this.getApplicationContext(), "不支持类型", Toast.LENGTH_SHORT).show();
                 finish();
                 return;
         }
@@ -171,9 +178,9 @@ public class PicSelMidActivity extends PicBaseActivity {
                 //图片选择
                 startActivityForResult(resultIntent, IntentCode.PIC_SEL_REQ);
                 break;
-            case IntentCode.VIDEO_REQ:
+            case IntentCode.VIDEO_RECORD_REQ:
                 //视频录制
-                startActivityForResult(resultIntent, IntentCode.VIDEO_REQ);
+                startActivityForResult(resultIntent, IntentCode.VIDEO_RECORD_REQ);
                 break;
             case IntentCode.BROWSER_CODE_REQUEST:
                 //浏览图片
@@ -190,6 +197,14 @@ public class PicSelMidActivity extends PicBaseActivity {
             case IntentCode.PIC_MAIN_TAKE_PIC_REQUEST:
                 //系统拍摄图片--版本适配
                 startActivityForResult(resultIntent, IntentCode.PIC_MAIN_TAKE_PIC_REQUEST);
+                break;
+            case IntentCode.CAMERAX_TAKE_PIC_REQ:
+                //自定义图片拍摄
+                startActivityForResult(resultIntent, IntentCode.CAMERAX_TAKE_PIC_REQ);
+                break;
+            case IntentCode.CUS_VIDEO_PLAY_REQ:
+                //自定义视频播放页面
+                startActivityForResult(resultIntent, IntentCode.CUS_VIDEO_PLAY_REQ);
                 break;
             default:
                 finish();
@@ -266,8 +281,8 @@ public class PicSelMidActivity extends PicBaseActivity {
         }
         if (requestCode == IntentCode.PIC_MAIN_CROP_PIC_REQUEST && resultCode == RESULT_OK) {
             //系统剪裁图片
-            Log.d(TAG, "剪裁图片路径返回: " + corpPicPath);
-            DataBusManager.getInstance().cropResult(corpPicPath);
+            Log.d(TAG, "剪裁图片路径返回: " + cropPicPath);
+            DataBusManager.getInstance().cropResult(cropPicPath);
             finish();
             return;
         }
@@ -287,7 +302,7 @@ public class PicSelMidActivity extends PicBaseActivity {
             finish();
             return;
         }
-        if (requestCode == IntentCode.VIDEO_REQ && resultCode == IntentCode.VIDEO_RES) {
+        if (requestCode == IntentCode.VIDEO_RECORD_REQ && resultCode == IntentCode.VIDEO_RECORD_RES) {
             //系统录制视频
             Log.d(TAG, "录制视频返回");
             try {
@@ -296,6 +311,25 @@ public class PicSelMidActivity extends PicBaseActivity {
             } catch (Exception e) {
                 Log.d(TAG, "录制视频返回e: " + e);
             }
+            finish();
+            return;
+        }
+        if (requestCode == IntentCode.CAMERAX_TAKE_PIC_REQ && resultCode == IntentCode.CAMERAX_TAKE_PIC_RES) {
+            //自定义图片拍摄
+            Log.d(TAG, "自定义图片拍摄返回");
+            try {
+                String path = data.getStringExtra(IntentCode.PATH_STRING_CAMERAX_TAKE_RES);
+                if (!TextUtils.isEmpty(path)) {
+                    DataBusManager.getInstance().cameraResult(path);
+                }
+            } catch (Exception e) {
+                Log.d(TAG, "自定义图片拍摄返回e: " + e);
+            }
+            finish();
+            return;
+        }
+        if (requestCode == IntentCode.CUS_VIDEO_PLAY_REQ && resultCode == IntentCode.CUS_VIDEO_PLAY_RES) {
+            //图库内部视频播放页面回调
             finish();
             return;
         }

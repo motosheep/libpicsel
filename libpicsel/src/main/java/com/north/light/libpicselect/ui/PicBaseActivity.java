@@ -10,6 +10,8 @@ import android.view.Window;
 import android.view.WindowManager;
 
 import androidx.annotation.Nullable;
+import androidx.fragment.app.FragmentActivity;
+import androidx.lifecycle.MutableLiveData;
 
 import com.north.light.libpicselect.R;
 
@@ -19,7 +21,7 @@ import java.util.Map;
  * create by lzt
  * data 2019/12/8
  */
-public abstract class PicBaseActivity extends Activity {
+public abstract class PicBaseActivity extends FragmentActivity {
     @SuppressLint("SourceLockedOrientationActivity")
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {

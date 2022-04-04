@@ -34,6 +34,7 @@ import java.util.Map;
 /**
  * 需要注意由于对象引用，导致数据错乱问题
  * change by lzt 20200823 增加视频显示逻辑
+ * change by lzt 20220404 增加自定义视频播放intent参数
  */
 public class PicSelectActivity extends PicBaseActivity {
 
@@ -54,6 +55,7 @@ public class PicSelectActivity extends PicBaseActivity {
     private boolean isShowGif;//显示gif标识
     private boolean isShowVideo;//显示视频标识
     private boolean isCusCamera;//自定义相机标识
+    private boolean isCusVideoPlayUI;//自定义视频播放界面
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,6 +71,7 @@ public class PicSelectActivity extends PicBaseActivity {
         isShowGif = getIntent().getBooleanExtra(IntentCode.PIC_SEL_DATA_SHOW_GIF, false);//gif显示标识
         isShowVideo = getIntent().getBooleanExtra(IntentCode.PIC_SEL_DATA_SHOW_VIDEO, false);//视频显示标识
         isCusCamera = getIntent().getBooleanExtra(IntentCode.PIC_SEL_DATA_CUS_CAMERA, false);//自定义相机标识
+        isCusVideoPlayUI = getIntent().getBooleanExtra(IntentCode.PIC_SEL_DATA_CUS_VIDEO_PLAYER, false);//自定义视频播放界面
         if (mLimit > 9) mLimit = 9;
         mContent = findViewById(R.id.lib_pic_activity_pic_sel_recy);
         mBack = findViewById(R.id.lib_pic_activity_pic_sel_back);
@@ -135,7 +138,7 @@ public class PicSelectActivity extends PicBaseActivity {
                     }
                     //赋值对象到内存中
                     PicSelIntentInfo.getInstance().setPicList(result);
-                    PicBrowserActivity.launch(PicSelectActivity.this, pos, mLimit);
+                    PicBrowserActivity.launch(PicSelectActivity.this, pos, mLimit,isCusVideoPlayUI);
                 }
             }
 
@@ -150,7 +153,7 @@ public class PicSelectActivity extends PicBaseActivity {
                 //拍照
                 if (isCusCamera) {
                     //回调，并结束当前页面
-                    DataBusManager.getInstance().takeCameraCus();
+                    DataBusManager.getInstance().takeCameraCus(PicSelectActivity.this,0);
                 } else {
                     PicSelMain.getInstance().takeCamera(PicSelectActivity.this, false, 0);
                 }
@@ -233,6 +236,7 @@ public class PicSelectActivity extends PicBaseActivity {
                 updateSelCount();
             }
         }
+        //若是中间页面，直接finish
         if (requestCode == IntentCode.PIC_SEL_MID_REQ_CODE && resultCode == IntentCode.PIC_SEL_MID_RES_CODE) {
             finish();
         }

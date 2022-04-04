@@ -1,5 +1,7 @@
 package com.north.light.libpicselect.databus;
 
+import android.app.Activity;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -73,28 +75,28 @@ public class DataBusManager implements Serializable {
     }
 
     //播放视频--自定义
-    public void playVideoCus(String path) {
+    public void playVideoCus(Activity activity, String path) {
         for (DataBusListener cache : mListener) {
             if (cache != null) {
-                cache.playCusVideo(path);
+                cache.playCusVideo(activity, path);
             }
         }
     }
 
     //拍照--自定义
-    public void takeCameraCus() {
+    public void takeCameraCus(Activity activity,int org) {
         for (DataBusListener cache : mListener) {
             if (cache != null) {
-                cache.takeCameraCus();
+                cache.takeCameraCus(activity,org);
             }
         }
     }
 
     //播放视频--系统
-    public void playVideoSystem(String path) {
+    public void playVideoSystem(Activity activity, String path) {
         for (DataBusListener cache : mListener) {
             if (cache != null) {
-                cache.playVideoSystem(path);
+                cache.playVideoSystem(activity, path);
             }
         }
     }

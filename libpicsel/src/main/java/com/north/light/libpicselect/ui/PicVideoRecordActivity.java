@@ -7,7 +7,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 
@@ -18,7 +17,7 @@ import com.north.light.libpicselect.constant.PicConstant;
 /**
  * 视频录制activity
  */
-public class VideoRecordActivity extends PicBaseActivity {
+public class PicVideoRecordActivity extends PicBaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,7 +40,7 @@ public class VideoRecordActivity extends PicBaseActivity {
                 String path = getPath(this.getApplicationContext(), data.getData());
                 Intent result = new Intent();
                 result.putExtra(IntentCode.VIDEO_RECODE_PATH, path);
-                setResult(IntentCode.VIDEO_RES, result);
+                setResult(IntentCode.VIDEO_RECORD_RES, result);
                 finish();
             } catch (Exception e) {
                 finish();

@@ -15,11 +15,8 @@ maven { url "https://jitpack.io" }
 
 1.  图片加载配置
 
-
-//图片加载库
-
-
-        PicSelConfig.getInstance().setLoaderManager(this.getApplicationContext(), new PicSelConfig.BindImageViewListener() {
+        //初始化
+        PicSelMain.getInstance().init(this.getApplicationContext(), new PicSelConfig.BindImageViewListener() {
             @Override
             public void BindImageView(String path, ImageView iv) {
                 Glide.with(MainActivity.this.getApplicationContext()).load(path).into(iv);
@@ -32,33 +29,49 @@ maven { url "https://jitpack.io" }
         });
 
 
+
 2.  启动选择页面配置
 
-        //加载图片
+ findViewById(R.id.activity_main_choose).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //加载图片
+                String path = "/storage/emulated/0/Android/data/com.north.light.picsel/files/lib_pic_sel/camera/1649036977293.jpg";
+                String path2 = "/storage/emulated/0/DCIM/Camera/VID_20220404_095827.mp4";
+//                PicSelMain.getInstance().getPic(MainActivity.this, true, 3,
+//                        true, true, true, true);
+                //剪裁/storage/emulated/0/Android/data/com.north.light.picsel/files/lib_pic_sel/camera/1649036977293.jpg
+//                PicSelMain.getInstance().cropPic(MainActivity.this,
+//                        path,false,1,1);
+//                PicSelMain.getInstance().recordVideo(MainActivity.this,20);
+//                List<String> brList = new ArrayList<>();
+//                brList.add(path);
+//                brList.add(path2);
+//                PicSelMain.getInstance().browsePic(brList, MainActivity.this, 0, 2);
 
-        PicSelMain.getIntance().getPicSingle(false,MainActivity.this,true);
+            }
 
 3.  数据回调配置
 
-        PicSelMain.getInstance().ActivityForResult(requestCode, resultCode, data, new PicSelMain.PicCallbackListener() {
+        //拍摄回调
+        PicSelMain.getInstance().setPicCallBackListener(new PicCallbackListener() {
             @Override
             public void cameraResult(String path) {
-                Glide.with(MainActivity.this).load(path).into(img);
+
             }
 
             @Override
             public void selectResult(ArrayList<String> result) {
-                Glide.with(MainActivity.this).load(result.get(0)).into(img);
+
             }
 
             @Override
             public void cropResult(String path) {
-                Glide.with(MainActivity.this).load(path).into(img);
+
             }
 
             @Override
             public void recordVideoPath(String path) {
-                Log.d(TAG, "recordVideoPath path: " + path);
 
             }
         });
@@ -176,6 +189,16 @@ maven { url "https://jitpack.io" }
   20220214版本更新：
 
 1优化图片选择获取结果逻辑
+
+
+//--------------------------------------------------------------------------------
+
+
+  202200404版本更新：
+
+1重构图库逻辑
+2增加图库内部视频播放页面
+3增加图库内部图片拍摄页面
 
 
 

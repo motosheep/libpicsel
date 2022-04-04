@@ -7,12 +7,20 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
 
+    <uses-feature android:name="android.hardware.camera" />
+
     <application>
+        <activity
+            android:name=".ui.PicPlayVideoActivity"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen" />
+        <activity
+            android:name=".ui.PicTakeCameraCusActivity"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen" />
         <activity
             android:name=".ui.PicSelMidActivity"
             android:theme="@android:style/Theme.Translucent.NoTitleBar" />
         <activity
-            android:name=".ui.VideoRecordActivity"
+            android:name=".ui.PicVideoRecordActivity"
             android:theme="@android:style/Theme.Translucent.NoTitleBar" />
         <activity
             android:name=".ui.PicDirectoryActivity"

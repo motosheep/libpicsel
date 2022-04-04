@@ -16,11 +16,9 @@ import android.widget.Toast;
 import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
-import com.north.light.libpicselect.PicSelMain;
 import com.north.light.libpicselect.R;
 import com.north.light.libpicselect.bean.PicSelIntentInfo;
 import com.north.light.libpicselect.constant.IntentCode;
-import com.north.light.libpicselect.constant.PicConstant;
 import com.north.light.libpicselect.databus.DataBusManager;
 import com.north.light.libpicselect.model.PicSelConfig;
 import com.north.light.libpicselect.widget.photoview.PhotoView;
@@ -161,10 +159,10 @@ public class PicBrowserActivity extends PicBaseActivity {
                 try {
                     String path = mDataList.get(mViewPager.getCurrentItem());
                     if (mVideoPlayWay == 1) {
-                        DataBusManager.getInstance().playVideoSystem(path);
+                        DataBusManager.getInstance().playVideoSystem(PicBrowserActivity.this, path);
                     } else if (mVideoPlayWay == 2) {
                         //自定义播放--广播
-                        DataBusManager.getInstance().playVideoCus(path);
+                        DataBusManager.getInstance().playVideoCus(PicBrowserActivity.this, path);
                     }
                 } catch (Exception e) {
                     Log.d(TAG, "mPlayBt e: " + e.getMessage());
@@ -268,11 +266,12 @@ public class PicBrowserActivity extends PicBaseActivity {
     /**
      * 指定图片位置的方法--内部
      */
-    public static void launch(Activity activity, int position, int selLimit) {
+    public static void launch(Activity activity, int position, int selLimit, boolean isCusVideoPlayUI) {
         Intent intent = new Intent(activity, PicBrowserActivity.class);
         intent.putExtra(IntentCode.BROWSER_POSITION, position);
         intent.putExtra(IntentCode.BROWSER_SHOW_SEL_MODE, true);
         intent.putExtra(IntentCode.BROWSER_SEL_LIMIT, selLimit);
+        intent.putExtra(IntentCode.BROWSER_VIDEO_WAY, (isCusVideoPlayUI) ? 2 : 1);
         activity.startActivityForResult(intent, IntentCode.BROWSER_CODE_REQUEST);
     }
 
