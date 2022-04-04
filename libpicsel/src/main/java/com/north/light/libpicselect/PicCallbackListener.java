@@ -20,4 +20,6 @@ public interface PicCallbackListener extends Serializable {
 
     //录制视频
     void recordVideoPath(String path);
+
+    void error(String message);
 }

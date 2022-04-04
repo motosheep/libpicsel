@@ -45,6 +45,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class PicSelMain {
     private static final String TAG = PicSelMain.class.getName();
     private CopyOnWriteArrayList<PicCallbackListener> picListener = new CopyOnWriteArrayList<>();
+    private CopyOnWriteArrayList<PicActionListener> actionListener = new CopyOnWriteArrayList<>();
 
     private static final class SingleHolder {
         private static final PicSelMain mInstance = new PicSelMain();
@@ -103,12 +104,26 @@ public class PicSelMain {
             public void playCusVideo(Activity activity, String path) {
                 //播放自定义视频
                 Log.e(TAG, "playCusVideo： " + path);
+                if (actionOutSide()) {
+                    for (PicActionListener callbackListener : actionListener) {
+                        callbackListener.cusVideoPlay(activity, path);
+                    }
+                    activity.finish();
+                    return;
+                }
                 playCusVideoUI(activity, path);
             }
 
             @Override
             public void takeCameraCus(Activity activity, int org) {
                 Log.e(TAG, "takeCameraCus");
+                if (actionOutSide()) {
+                    for (PicActionListener callbackListener : actionListener) {
+                        callbackListener.cusCameraTake(activity);
+                    }
+                    activity.finish();
+                    return;
+                }
                 //自定义相机
                 takeCamera(activity, true, org);
             }
@@ -148,6 +163,7 @@ public class PicSelMain {
      */
     public void takeCamera(Activity activity, boolean custom, int org) {
         if (!PicPermissionCheck.getInstance().check(PicPermissionType.TYPE_CAMERA_EXTERNAL)) {
+            noPermissionNotify();
             return;
         }
         if (org != 1 && org != 0) {
@@ -170,11 +186,12 @@ public class PicSelMain {
      */
     public void getPic(Activity activity, boolean showCamera,
                        int limit, boolean showVideo,
-                       boolean showGif, boolean cusCamera,boolean cusPlayer) {
+                       boolean showGif, boolean cusCamera, boolean cusPlayer) {
         if (!PicPermissionCheck.getInstance().check(PicPermissionType.TYPE_CAMERA_EXTERNAL)) {
+            noPermissionNotify();
             return;
         }
-        getPicVideoMul(false, activity, limit, showCamera, showVideo, showGif, cusCamera,cusPlayer);
+        getPicVideoMul(false, activity, limit, showCamera, showVideo, showGif, cusCamera, cusPlayer);
     }
 
     /**
@@ -182,6 +199,7 @@ public class PicSelMain {
      */
     public void recordVideo(Activity activity, int second) {
         if (!PicPermissionCheck.getInstance().check(PicPermissionType.TYPE_CAMERA_RECORD)) {
+            noPermissionNotify();
             return;
         }
         //系统录制视频
@@ -193,6 +211,7 @@ public class PicSelMain {
      */
     public void cropPic(Activity activity, String filePath, boolean custom, int widthRate, int heightRite) {
         if (!PicPermissionCheck.getInstance().check(PicPermissionType.TYPE_EXTERNAL)) {
+            noPermissionNotify();
             return;
         }
         if (!custom) {
@@ -208,7 +227,7 @@ public class PicSelMain {
      * 获取多个图片or视频
      */
     private void getPicVideoMul(boolean isTakeCamera, Activity activity, int size, boolean showCamera
-            , boolean showVideo, boolean showGif, boolean cusCamera,boolean cusPlayer) {
+            , boolean showVideo, boolean showGif, boolean cusCamera, boolean cusPlayer) {
         if (isTakeCamera) {
             takePic(activity, 0);
         } else {
@@ -428,6 +447,22 @@ public class PicSelMain {
         }
     }
 
+    /**
+     * 没有权限的通知
+     */
+    private void noPermissionNotify() {
+        for (PicCallbackListener callbackListener : picListener) {
+            callbackListener.error("no permission,please grant");
+        }
+    }
+
+    /**
+     * 是否自定义事件--通过监听集合判断，拍摄图片，视频播放是否需要交由外部处理--list size judge
+     */
+    private boolean actionOutSide() {
+        return actionListener.size() != 0;
+    }
+
     //路径--------------------------------------------------------------------------------------
 
     /**
@@ -466,6 +501,15 @@ public class PicSelMain {
 
     public void removePicCallBackListener(PicCallbackListener t) {
         picListener.remove(t);
+    }
+
+
+    public void setActionListener(PicActionListener t) {
+        actionListener.add(t);
+    }
+
+    public void removeActionListener(PicActionListener t) {
+        actionListener.remove(t);
     }
 
 

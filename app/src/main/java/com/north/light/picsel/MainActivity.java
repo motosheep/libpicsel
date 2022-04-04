@@ -1,5 +1,6 @@
 package com.north.light.picsel;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
@@ -7,6 +8,7 @@ import android.widget.ImageView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
+import com.north.light.libpicselect.PicActionListener;
 import com.north.light.libpicselect.PicCallbackListener;
 import com.north.light.libpicselect.PicSelMain;
 import com.north.light.libpicselect.model.PicSelConfig;
@@ -30,16 +32,28 @@ public class MainActivity extends AppCompatActivity {
                 //加载图片
                 String path = "/storage/emulated/0/Android/data/com.north.light.picsel/files/lib_pic_sel/camera/1649036977293.jpg";
                 String path2 = "/storage/emulated/0/DCIM/Camera/VID_20220404_095827.mp4";
-//                PicSelMain.getInstance().getPic(MainActivity.this, true, 3,
-//                        true, true, true, true);
+                PicSelMain.getInstance().getPic(MainActivity.this, true, 3,
+                        true, true, true, true);
                 //剪裁/storage/emulated/0/Android/data/com.north.light.picsel/files/lib_pic_sel/camera/1649036977293.jpg
 //                PicSelMain.getInstance().cropPic(MainActivity.this,
 //                        path,false,1,1);
 //                PicSelMain.getInstance().recordVideo(MainActivity.this,20);
-//                List<String> brList = new ArrayList<>();
-//                brList.add(path);
-//                brList.add(path2);
+                List<String> brList = new ArrayList<>();
+                brList.add(path);
+                brList.add(path2);
 //                PicSelMain.getInstance().browsePic(brList, MainActivity.this, 0, 2);
+
+            }
+        });
+        //若调用此方法，记得及时释放，监听实例数量会作为是否交由外部处理的依据
+        PicSelMain.getInstance().setActionListener(new PicActionListener() {
+            @Override
+            public void cusVideoPlay(Activity activity, String path) {
+
+            }
+
+            @Override
+            public void cusCameraTake(Activity activity) {
 
             }
         });
@@ -74,6 +88,11 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void recordVideoPath(String path) {
+
+            }
+
+            @Override
+            public void error(String message) {
 
             }
         });

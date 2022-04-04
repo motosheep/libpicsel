@@ -53,6 +53,19 @@ maven { url "https://jitpack.io" }
 
 3.  数据回调配置
 
+        //若调用此方法，记得及时释放，监听实例数量会作为是否交由外部处理的依据
+        PicSelMain.getInstance().setActionListener(new PicActionListener() {
+            @Override
+            public void cusVideoPlay(Activity activity, String path) {
+
+            }
+
+            @Override
+            public void cusCameraTake(Activity activity) {
+
+            }
+        });
+
         //拍摄回调
         PicSelMain.getInstance().setPicCallBackListener(new PicCallbackListener() {
             @Override
@@ -199,6 +212,7 @@ maven { url "https://jitpack.io" }
 1重构图库逻辑
 2增加图库内部视频播放页面
 3增加图库内部图片拍摄页面
+4增加外部回调自定义图片拍摄，视频播放回调
 
 
 
