@@ -32,25 +32,12 @@ maven { url "https://jitpack.io" }
 
 2.  启动选择页面配置
 
- findViewById(R.id.activity_main_choose).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //加载图片
-                String path = "/storage/emulated/0/Android/data/com.north.light.picsel/files/lib_pic_sel/camera/1649036977293.jpg";
-                String path2 = "/storage/emulated/0/DCIM/Camera/VID_20220404_095827.mp4";
-//                PicSelMain.getInstance().getPic(MainActivity.this, true, 3,
-//                        true, true, true, true);
-                //剪裁/storage/emulated/0/Android/data/com.north.light.picsel/files/lib_pic_sel/camera/1649036977293.jpg
-//                PicSelMain.getInstance().cropPic(MainActivity.this,
-//                        path,false,1,1);
-//                PicSelMain.getInstance().recordVideo(MainActivity.this,20);
-//                List<String> brList = new ArrayList<>();
-//                brList.add(path);
-//                brList.add(path2);
-//                PicSelMain.getInstance().browsePic(brList, MainActivity.this, 0, 2);
 
-            }
-        }
+PicSelMain.getInstance().browsePic(brList, MainActivity.this, 0, 2);
+PicSelMain.getInstance().getPic(MainActivity.this, true, 3,true, true, true, true);
+PicSelMain.getInstance().cropPic(MainActivity.this,path,false,1,1);
+PicSelMain.getInstance().recordVideo(MainActivity.this,20);
+
 
 3.  数据回调配置
 
