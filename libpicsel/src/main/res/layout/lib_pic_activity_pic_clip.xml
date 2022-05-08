@@ -3,7 +3,7 @@
     android:layout_height="match_parent"
     android:background="#aaaaaa">
 
-    <com.north.light.libpicselect.crop.ClipImageLayout
+    <com.north.light.libpicselect.crop.LibPicClipImageLayout
         android:id="@+id/lib_pic_activity_clip_image_layout"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent" />

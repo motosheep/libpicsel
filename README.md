@@ -34,8 +34,14 @@ maven { url "https://jitpack.io" }
 
 
 PicSelMain.getInstance().browsePic(brList, MainActivity.this, 0, 2);
+
+
 PicSelMain.getInstance().getPic(MainActivity.this, true, 3,true, true, true, true);
+
+
 PicSelMain.getInstance().cropPic(MainActivity.this,path,false,1,1);
+
+
 PicSelMain.getInstance().recordVideo(MainActivity.this,20);
 
 
@@ -195,12 +201,23 @@ PicSelMain.getInstance().recordVideo(MainActivity.this,20);
 //--------------------------------------------------------------------------------
 
 
-  202200404版本更新：
+  20220404版本更新：
 
 1重构图库逻辑
 2增加图库内部视频播放页面
 3增加图库内部图片拍摄页面
 4增加外部回调自定义图片拍摄，视频播放回调
+
+
+
+//--------------------------------------------------------------------------------
+
+
+  20220429版本更新：
+
+1优化图片加载策略
+2修改选择图片后回调的数据对象
+3资源重命名
 
 
 

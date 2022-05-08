@@ -12,17 +12,18 @@ import android.util.Log;
 
 import androidx.core.content.FileProvider;
 
-import com.north.light.libpicselect.bean.PicSelIntentInfo;
-import com.north.light.libpicselect.bean.PicSelMidInfo;
-import com.north.light.libpicselect.constant.IntentCode;
-import com.north.light.libpicselect.constant.PathConstant;
-import com.north.light.libpicselect.constant.PicConstant;
-import com.north.light.libpicselect.databus.DataBusListener;
-import com.north.light.libpicselect.databus.DataBusManager;
-import com.north.light.libpicselect.model.PicSelConfig;
-import com.north.light.libpicselect.permission.PicPermissionCheck;
-import com.north.light.libpicselect.permission.PicPermissionType;
-import com.north.light.libpicselect.ui.PicSelMidActivity;
+import com.north.light.libpicselect.bean.LibPicSelIntentInfo;
+import com.north.light.libpicselect.bean.LibPicSelMidInfo;
+import com.north.light.libpicselect.callback.LibPicSelMediaInfo;
+import com.north.light.libpicselect.constant.LibPicIntentCode;
+import com.north.light.libpicselect.constant.LibPicPathConstant;
+import com.north.light.libpicselect.constant.LibPicConstant;
+import com.north.light.libpicselect.databus.LibPicDataBusListener;
+import com.north.light.libpicselect.databus.LibPicDataBusManager;
+import com.north.light.libpicselect.model.LibPicSelConfig;
+import com.north.light.libpicselect.permission.LibPicPermissionCheck;
+import com.north.light.libpicselect.permission.LibPicPermissionType;
+import com.north.light.libpicselect.ui.LibPicSelMidActivity;
 import com.north.light.libpicselect.utils.LibPicSelStringUtils;
 
 import java.io.File;
@@ -58,15 +59,15 @@ public class PicSelMain {
     /**
      * 初始化--application init-----------------------------------------------------------------
      */
-    public void init(Context context, PicSelConfig.BindImageViewListener listener) {
-        PicSelConfig.getInstance().setLoaderManager(context.getApplicationContext(), listener);
+    public void init(Context context, LibPicSelConfig.BindImageViewListener listener) {
+        LibPicSelConfig.getInstance().setLoaderManager(context.getApplicationContext(), listener);
         //设置存储路径---------------------------------------------------------------------------
-        setCameraPicPath(PathConstant.getInstance().getLibPicCamera(context));
-        setCopyPicPath(PathConstant.getInstance().getLibPicCopy(context));
-        setCropPicPath(PathConstant.getInstance().getLibPicCopy(context));
-        setRecordVideoPath(PathConstant.getInstance().getLibPicRecordVideo(context));
+        setCameraPicPath(LibPicPathConstant.getInstance().getLibPicCamera(context));
+        setCopyPicPath(LibPicPathConstant.getInstance().getLibPicCopy(context));
+        setCropPicPath(LibPicPathConstant.getInstance().getLibPicCopy(context));
+        setRecordVideoPath(LibPicPathConstant.getInstance().getLibPicRecordVideo(context));
         //数据bus监听---------------------------------------------------------------------------
-        DataBusManager.getInstance().setDataBusListener(new DataBusListener() {
+        LibPicDataBusManager.getInstance().setDataBusListener(new LibPicDataBusListener() {
 
             @Override
             public void cameraResult(String path) {
@@ -77,7 +78,7 @@ public class PicSelMain {
             }
 
             @Override
-            public void selectResult(ArrayList<String> result) {
+            public void selectResult(ArrayList<LibPicSelMediaInfo> result) {
                 Log.e(TAG, "selectResult");
                 for (PicCallbackListener callbackListener : picListener) {
                     callbackListener.selectResult(result);
@@ -143,12 +144,12 @@ public class PicSelMain {
         if (TextUtils.isEmpty(path)) {
             return;
         }
-        PicSelMidInfo midInfo = new PicSelMidInfo();
-        midInfo.putWrapper(IntentCode.CUS_VIDEO_PLAY_PATH, path);
-        midInfo.setREQ_TYPE(IntentCode.CUS_VIDEO_PLAY_REQ);
-        Intent intent1 = new Intent(activity, PicSelMidActivity.class);
-        intent1.putExtra(IntentCode.PIC_SEL_MID_PARAMS, midInfo);
-        activity.startActivityForResult(intent1, IntentCode.PIC_SEL_MID_REQ_CODE);
+        LibPicSelMidInfo midInfo = new LibPicSelMidInfo();
+        midInfo.putWrapper(LibPicIntentCode.CUS_VIDEO_PLAY_PATH, path);
+        midInfo.setREQ_TYPE(LibPicIntentCode.CUS_VIDEO_PLAY_REQ);
+        Intent intent1 = new Intent(activity, LibPicSelMidActivity.class);
+        intent1.putExtra(LibPicIntentCode.PIC_SEL_MID_PARAMS, midInfo);
+        activity.startActivityForResult(intent1, LibPicIntentCode.PIC_SEL_MID_REQ_CODE);
     }
 
     /**
@@ -162,7 +163,7 @@ public class PicSelMain {
      * @param org    1前置 0非前置
      */
     public void takeCamera(Activity activity, boolean custom, int org) {
-        if (!PicPermissionCheck.getInstance().check(PicPermissionType.TYPE_CAMERA_EXTERNAL)) {
+        if (!LibPicPermissionCheck.getInstance().check(LibPicPermissionType.TYPE_CAMERA_EXTERNAL)) {
             noPermissionNotify();
             return;
         }
@@ -187,7 +188,7 @@ public class PicSelMain {
     public void getPic(Activity activity, boolean showCamera,
                        int limit, boolean showVideo,
                        boolean showGif, boolean cusCamera, boolean cusPlayer) {
-        if (!PicPermissionCheck.getInstance().check(PicPermissionType.TYPE_CAMERA_EXTERNAL)) {
+        if (!LibPicPermissionCheck.getInstance().check(LibPicPermissionType.TYPE_CAMERA_EXTERNAL)) {
             noPermissionNotify();
             return;
         }
@@ -198,7 +199,7 @@ public class PicSelMain {
      * 录制视频
      */
     public void recordVideo(Activity activity, int second) {
-        if (!PicPermissionCheck.getInstance().check(PicPermissionType.TYPE_CAMERA_RECORD)) {
+        if (!LibPicPermissionCheck.getInstance().check(LibPicPermissionType.TYPE_CAMERA_RECORD)) {
             noPermissionNotify();
             return;
         }
@@ -210,7 +211,7 @@ public class PicSelMain {
      * 剪裁图片
      */
     public void cropPic(Activity activity, String filePath, boolean custom, int widthRate, int heightRite) {
-        if (!PicPermissionCheck.getInstance().check(PicPermissionType.TYPE_EXTERNAL)) {
+        if (!LibPicPermissionCheck.getInstance().check(LibPicPermissionType.TYPE_EXTERNAL)) {
             noPermissionNotify();
             return;
         }
@@ -219,6 +220,33 @@ public class PicSelMain {
         } else {
             cropCus(activity, filePath, widthRate, heightRite);
         }
+    }
+
+
+    /**
+     * 浏览图片
+     */
+    public void browsePic(List<String> picList, Activity activity, int pos) {
+        browsePic(picList, activity, pos, 1);
+    }
+
+    /**
+     * 浏览图片
+     *
+     * @param videoWay 浏览视频时的方式：1系统自带 2自定义视频播放页面
+     */
+    public void browsePic(List<String> picList, Activity activity, int pos, int videoWay) {
+        if (picList == null || picList.size() == 0) {
+            return;
+        }
+        Intent intent1 = new Intent(activity, LibPicSelMidActivity.class);
+        LibPicSelIntentInfo.getInstance().setPicList(picList);
+        LibPicSelMidInfo midInfo = new LibPicSelMidInfo();
+        midInfo.putWrapper(LibPicIntentCode.BROWSER_POSITION, pos);
+        midInfo.putWrapper(LibPicIntentCode.BROWSER_VIDEO_WAY, videoWay);
+        midInfo.setREQ_TYPE(LibPicIntentCode.BROWSER_CODE_REQUEST);
+        intent1.putExtra(LibPicIntentCode.PIC_SEL_MID_PARAMS, midInfo);
+        activity.startActivityForResult(intent1, LibPicIntentCode.PIC_SEL_MID_REQ_CODE);
     }
 
     //内部实现func----------------------------------------------------------------------------
@@ -232,17 +260,17 @@ public class PicSelMain {
             takePic(activity, 0);
         } else {
             //进入三方图片选择
-            PicSelMidInfo midInfo = new PicSelMidInfo();
-            midInfo.putWrapper(IntentCode.PIC_SEL_DATA_LIMIT, size);
-            midInfo.putWrapper(IntentCode.PIC_SEL_DATA_NEED_CAMERA, showCamera);
-            midInfo.putWrapper(IntentCode.PIC_SEL_DATA_SHOW_VIDEO, showVideo);
-            midInfo.putWrapper(IntentCode.PIC_SEL_DATA_CUS_CAMERA, cusCamera);
-            midInfo.putWrapper(IntentCode.PIC_SEL_DATA_SHOW_GIF, showGif);
-            midInfo.putWrapper(IntentCode.PIC_SEL_DATA_CUS_VIDEO_PLAYER, cusPlayer);
-            midInfo.setREQ_TYPE(IntentCode.PIC_SEL_REQ);
-            Intent intent1 = new Intent(activity, PicSelMidActivity.class);
-            intent1.putExtra(IntentCode.PIC_SEL_MID_PARAMS, midInfo);
-            activity.startActivityForResult(intent1, IntentCode.PIC_SEL_MID_REQ_CODE);
+            LibPicSelMidInfo midInfo = new LibPicSelMidInfo();
+            midInfo.putWrapper(LibPicIntentCode.PIC_SEL_DATA_LIMIT, size);
+            midInfo.putWrapper(LibPicIntentCode.PIC_SEL_DATA_NEED_CAMERA, showCamera);
+            midInfo.putWrapper(LibPicIntentCode.PIC_SEL_DATA_SHOW_VIDEO, showVideo);
+            midInfo.putWrapper(LibPicIntentCode.PIC_SEL_DATA_CUS_CAMERA, cusCamera);
+            midInfo.putWrapper(LibPicIntentCode.PIC_SEL_DATA_SHOW_GIF, showGif);
+            midInfo.putWrapper(LibPicIntentCode.PIC_SEL_DATA_CUS_VIDEO_PLAYER, cusPlayer);
+            midInfo.setREQ_TYPE(LibPicIntentCode.PIC_SEL_REQ);
+            Intent intent1 = new Intent(activity, LibPicSelMidActivity.class);
+            intent1.putExtra(LibPicIntentCode.PIC_SEL_MID_PARAMS, midInfo);
+            activity.startActivityForResult(intent1, LibPicIntentCode.PIC_SEL_MID_REQ_CODE);
         }
     }
 
@@ -256,12 +284,12 @@ public class PicSelMain {
      * @return false没有权限 true有权限
      */
     private boolean recordVideoInner(Activity activity, int second) {
-        Intent intent1 = new Intent(activity, PicSelMidActivity.class);
-        PicSelMidInfo midInfo = new PicSelMidInfo();
-        midInfo.putWrapper(IntentCode.VIDEO_RECODE_SECOND, second);
-        midInfo.setREQ_TYPE(IntentCode.VIDEO_RECORD_REQ);
-        intent1.putExtra(IntentCode.PIC_SEL_MID_PARAMS, midInfo);
-        activity.startActivityForResult(intent1, IntentCode.PIC_SEL_MID_REQ_CODE);
+        Intent intent1 = new Intent(activity, LibPicSelMidActivity.class);
+        LibPicSelMidInfo midInfo = new LibPicSelMidInfo();
+        midInfo.putWrapper(LibPicIntentCode.VIDEO_RECODE_SECOND, second);
+        midInfo.setREQ_TYPE(LibPicIntentCode.VIDEO_RECORD_REQ);
+        intent1.putExtra(LibPicIntentCode.PIC_SEL_MID_PARAMS, midInfo);
+        activity.startActivityForResult(intent1, LibPicIntentCode.PIC_SEL_MID_REQ_CODE);
         return true;
     }
 
@@ -272,10 +300,10 @@ public class PicSelMain {
      */
     private void takePic(Activity activity, int type) {
         try {
-            String path = PicConstant.getInstance().getCameraPath() + System.currentTimeMillis() + ".jpg";
+            String path = LibPicConstant.getInstance().getCameraPath() + System.currentTimeMillis() + ".jpg";
             //intent wrapper
-            Intent intent1 = new Intent(activity, PicSelMidActivity.class);
-            PicSelMidInfo midInfo = new PicSelMidInfo();
+            Intent intent1 = new Intent(activity, LibPicSelMidActivity.class);
+            LibPicSelMidInfo midInfo = new LibPicSelMidInfo();
             if (Build.VERSION.SDK_INT >= 24) {
                 midInfo.addFlag(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             }
@@ -283,10 +311,10 @@ public class PicSelMain {
             if (type == 1) {
                 midInfo.putWrapper("android.intent.extras.CAMERA_FACING", 1);
             }
-            midInfo.setREQ_TYPE(IntentCode.PIC_MAIN_TAKE_PIC_REQUEST);
+            midInfo.setREQ_TYPE(LibPicIntentCode.PIC_MAIN_TAKE_PIC_REQUEST);
             midInfo.setTakePicTargetPath(path);
-            intent1.putExtra(IntentCode.PIC_SEL_MID_PARAMS, midInfo);
-            activity.startActivityForResult(intent1, IntentCode.PIC_SEL_MID_REQ_CODE);
+            intent1.putExtra(LibPicIntentCode.PIC_SEL_MID_PARAMS, midInfo);
+            activity.startActivityForResult(intent1, LibPicIntentCode.PIC_SEL_MID_REQ_CODE);
         } catch (Exception e) {
             Log.e(TAG, "拍照异常： " + e);
         }
@@ -297,15 +325,15 @@ public class PicSelMain {
      */
     private void takePicCus(Activity activity, int type) {
         try {
-            String path = PicConstant.getInstance().getCameraPath() + System.currentTimeMillis() + ".jpg";
+            String path = LibPicConstant.getInstance().getCameraPath() + System.currentTimeMillis() + ".jpg";
             //intent wrapper
-            Intent intent1 = new Intent(activity, PicSelMidActivity.class);
-            PicSelMidInfo midInfo = new PicSelMidInfo();
-            midInfo.putWrapper(IntentCode.PATH_STRING_CAMERAX_TAKE_PIC, path);
-            midInfo.putWrapper(IntentCode.PATH_STRING_CAMERAX_TAKE_ORG, type);
-            midInfo.setREQ_TYPE(IntentCode.CAMERAX_TAKE_PIC_REQ);
-            intent1.putExtra(IntentCode.PIC_SEL_MID_PARAMS, midInfo);
-            activity.startActivityForResult(intent1, IntentCode.PIC_SEL_MID_REQ_CODE);
+            Intent intent1 = new Intent(activity, LibPicSelMidActivity.class);
+            LibPicSelMidInfo midInfo = new LibPicSelMidInfo();
+            midInfo.putWrapper(LibPicIntentCode.PATH_STRING_CAMERAX_TAKE_PIC, path);
+            midInfo.putWrapper(LibPicIntentCode.PATH_STRING_CAMERAX_TAKE_ORG, type);
+            midInfo.setREQ_TYPE(LibPicIntentCode.CAMERAX_TAKE_PIC_REQ);
+            intent1.putExtra(LibPicIntentCode.PIC_SEL_MID_PARAMS, midInfo);
+            activity.startActivityForResult(intent1, LibPicIntentCode.PIC_SEL_MID_REQ_CODE);
         } catch (Exception e) {
             Log.e(TAG, "拍照异常： " + e);
         }
@@ -322,9 +350,9 @@ public class PicSelMain {
      */
     private void crop(Activity activity, String filePath, int aspectX, int aspectY, int outputX, int outputY) {
         try {
-            Intent intent1 = new Intent(activity, PicSelMidActivity.class);
-            PicSelMidInfo midInfo = new PicSelMidInfo();
-            midInfo.setCropPicTargetPath(PicConstant.getInstance().getCropPath() + System.currentTimeMillis() + ".jpg");
+            Intent intent1 = new Intent(activity, LibPicSelMidActivity.class);
+            LibPicSelMidInfo midInfo = new LibPicSelMidInfo();
+            midInfo.setCropPicTargetPath(LibPicConstant.getInstance().getCropPath() + System.currentTimeMillis() + ".jpg");
             midInfo.setCropPicSourcePath(filePath);
             midInfo.addAction("com.android.camera.action.CROP");
             if (Build.VERSION.SDK_INT >= 24) {
@@ -353,9 +381,9 @@ public class PicSelMain {
                     midInfo.putWrapper("aspectY", aspectY);
                 }
             }
-            midInfo.setREQ_TYPE(IntentCode.PIC_MAIN_CROP_PIC_REQUEST);
-            intent1.putExtra(IntentCode.PIC_SEL_MID_PARAMS, midInfo);
-            activity.startActivityForResult(intent1, IntentCode.PIC_SEL_MID_REQ_CODE);
+            midInfo.setREQ_TYPE(LibPicIntentCode.PIC_MAIN_CROP_PIC_REQUEST);
+            intent1.putExtra(LibPicIntentCode.PIC_SEL_MID_PARAMS, midInfo);
+            activity.startActivityForResult(intent1, LibPicIntentCode.PIC_SEL_MID_REQ_CODE);
         } catch (Exception e) {
             Log.e(TAG, "剪裁图片异常： " + e);
         }
@@ -367,47 +395,21 @@ public class PicSelMain {
      */
     private void cropCus(Activity activity, String filePath, int widthRate, int heightRate) {
         try {
-            Intent intent1 = new Intent(activity, PicSelMidActivity.class);
-            PicSelMidInfo midInfo = new PicSelMidInfo();
-            String corpCusPicTarPath = PicConstant.getInstance().getCropPath() + System.currentTimeMillis() + ".jpg";
+            Intent intent1 = new Intent(activity, LibPicSelMidActivity.class);
+            LibPicSelMidInfo midInfo = new LibPicSelMidInfo();
+            String corpCusPicTarPath = LibPicConstant.getInstance().getCropPath() + System.currentTimeMillis() + ".jpg";
             midInfo.setCusCropPicSourcePath(filePath);
             midInfo.setCusCropPicTargetPath(corpCusPicTarPath);
-            midInfo.putWrapper(IntentCode.PIC_CROP_DATA_ORG_PATH, filePath);
-            midInfo.putWrapper(IntentCode.PIC_CROP_DATA_TAR_PATH, corpCusPicTarPath);
-            midInfo.putWrapper(IntentCode.PIC_CROP_PIC_RATE_WIDTH, widthRate);
-            midInfo.putWrapper(IntentCode.PIC_CROP_PIC_RATE_HEIGHT, heightRate);
-            midInfo.setREQ_TYPE(IntentCode.PIC_CROP_CODE_REQ);
-            intent1.putExtra(IntentCode.PIC_SEL_MID_PARAMS, midInfo);
-            activity.startActivityForResult(intent1, IntentCode.PIC_SEL_MID_REQ_CODE);
+            midInfo.putWrapper(LibPicIntentCode.PIC_CROP_DATA_ORG_PATH, filePath);
+            midInfo.putWrapper(LibPicIntentCode.PIC_CROP_DATA_TAR_PATH, corpCusPicTarPath);
+            midInfo.putWrapper(LibPicIntentCode.PIC_CROP_PIC_RATE_WIDTH, widthRate);
+            midInfo.putWrapper(LibPicIntentCode.PIC_CROP_PIC_RATE_HEIGHT, heightRate);
+            midInfo.setREQ_TYPE(LibPicIntentCode.PIC_CROP_CODE_REQ);
+            intent1.putExtra(LibPicIntentCode.PIC_SEL_MID_PARAMS, midInfo);
+            activity.startActivityForResult(intent1, LibPicIntentCode.PIC_SEL_MID_REQ_CODE);
         } catch (Exception e) {
 
         }
-    }
-
-    /**
-     * 浏览图片
-     */
-    public void browsePic(List<String> picList, Activity activity, int pos) {
-        browsePic(picList, activity, pos, 1);
-    }
-
-    /**
-     * 浏览图片
-     *
-     * @param videoWay 浏览视频时的方式：1系统自带 2自定义视频播放页面
-     */
-    public void browsePic(List<String> picList, Activity activity, int pos, int videoWay) {
-        if (picList == null || picList.size() == 0) {
-            return;
-        }
-        Intent intent1 = new Intent(activity, PicSelMidActivity.class);
-        PicSelIntentInfo.getInstance().setPicList(picList);
-        PicSelMidInfo midInfo = new PicSelMidInfo();
-        midInfo.putWrapper(IntentCode.BROWSER_POSITION, pos);
-        midInfo.putWrapper(IntentCode.BROWSER_VIDEO_WAY, videoWay);
-        midInfo.setREQ_TYPE(IntentCode.BROWSER_CODE_REQUEST);
-        intent1.putExtra(IntentCode.PIC_SEL_MID_PARAMS, midInfo);
-        activity.startActivityForResult(intent1, IntentCode.PIC_SEL_MID_REQ_CODE);
     }
 
     /**
@@ -422,7 +424,7 @@ public class PicSelMain {
                 String type = "video/*";
                 Uri uri = Uri.parse(path);
                 intent.setDataAndType(uri, type);
-                PicSelConfig.getInstance().getContext().startActivity(intent);
+                LibPicSelConfig.getInstance().getContext().startActivity(intent);
             } else {
                 Intent intent = new Intent(Intent.ACTION_VIEW);
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -430,8 +432,8 @@ public class PicSelMain {
                 Uri uri = null;
                 if (Build.VERSION.SDK_INT >= 24) {
                     //7.0以上的拍照
-                    uri = FileProvider.getUriForFile(PicSelConfig.getInstance().getContext(),
-                            PicSelConfig.getInstance().getContext().getPackageName() + ".fileProvider", file);
+                    uri = FileProvider.getUriForFile(LibPicSelConfig.getInstance().getContext(),
+                            LibPicSelConfig.getInstance().getContext().getPackageName() + ".fileProvider", file);
                 } else {
                     //7.0以下的拍照
                     uri = Uri.fromFile(file);
@@ -440,7 +442,7 @@ public class PicSelMain {
                 intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 intent.setDataAndType(uri, "video/*");
                 //进入拍照页
-                PicSelConfig.getInstance().getContext().startActivity(intent);
+                LibPicSelConfig.getInstance().getContext().startActivity(intent);
             }
         } catch (Exception e) {
             Log.e(TAG, "播放视频异常： " + e);
@@ -469,28 +471,28 @@ public class PicSelMain {
      * 设置录像路径
      */
     public void setRecordVideoPath(String path) {
-        PicConstant.getInstance().setRecordVideo(path);
+        LibPicConstant.getInstance().setRecordVideo(path);
     }
 
     /**
      * 设置拍摄图片的路径
      */
     public void setCameraPicPath(String path) {
-        PicConstant.getInstance().setCameraPath(path);
+        LibPicConstant.getInstance().setCameraPath(path);
     }
 
     /**
      * 设置剪裁的路径
      */
     public void setCropPicPath(String path) {
-        PicConstant.getInstance().setCropPath(path);
+        LibPicConstant.getInstance().setCropPath(path);
     }
 
     /**
      * 设置图片复制路径
      */
     public void setCopyPicPath(String path) {
-        PicConstant.getInstance().setCopyPath(path);
+        LibPicConstant.getInstance().setCopyPath(path);
     }
 
     //监听--------------------------------------------------------------------------------------

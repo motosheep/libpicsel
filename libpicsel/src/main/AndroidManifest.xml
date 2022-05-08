@@ -11,28 +11,28 @@
 
     <application>
         <activity
-            android:name=".ui.PicPlayVideoActivity"
+            android:name=".ui.LibPicPlayVideoActivity"
             android:theme="@android:style/Theme.NoTitleBar.Fullscreen" />
         <activity
-            android:name=".ui.PicTakeCameraCusActivity"
+            android:name=".ui.LibPicTakeCameraCusActivity"
             android:theme="@android:style/Theme.NoTitleBar.Fullscreen" />
         <activity
-            android:name=".ui.PicSelMidActivity"
+            android:name=".ui.LibPicSelMidActivity"
             android:theme="@android:style/Theme.Translucent.NoTitleBar" />
         <activity
-            android:name=".ui.PicVideoRecordActivity"
+            android:name=".ui.LibPicVideoRecordActivity"
             android:theme="@android:style/Theme.Translucent.NoTitleBar" />
         <activity
-            android:name=".ui.PicDirectoryActivity"
+            android:name=".ui.LibPicDirectoryActivity"
             android:theme="@android:style/Theme.Translucent.NoTitleBar" />
         <activity
-            android:name=".ui.PicBrowserActivity"
+            android:name=".ui.LibPicBrowserActivity"
             android:theme="@android:style/Theme.NoTitleBar.Fullscreen" />
         <activity
-            android:name=".ui.PicClipActivity"
+            android:name=".ui.LibPicClipActivity"
             android:theme="@android:style/Theme.NoTitleBar.Fullscreen" />
         <activity
-            android:name=".ui.PicSelectActivity"
+            android:name=".ui.LibPicSelectActivity"
             android:theme="@android:style/Theme.Holo.NoActionBar" />
 
         <provider
@@ -42,7 +42,7 @@
             android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/provider_paths" />
+                android:resource="@xml/lib_pic_provider_paths" />
         </provider>
     </application>
 

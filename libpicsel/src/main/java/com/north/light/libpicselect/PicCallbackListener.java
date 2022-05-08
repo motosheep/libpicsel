@@ -1,5 +1,7 @@
 package com.north.light.libpicselect;
 
+import com.north.light.libpicselect.callback.LibPicSelMediaInfo;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 
@@ -13,7 +15,7 @@ public interface PicCallbackListener extends Serializable {
     void cameraResult(String path);
 
     //选择图片
-    void selectResult(ArrayList<String> result);
+    void selectResult(ArrayList<LibPicSelMediaInfo> result);
 
     //剪裁图片
     void cropResult(String path);

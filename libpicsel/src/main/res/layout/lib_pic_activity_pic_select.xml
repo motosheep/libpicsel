@@ -60,7 +60,7 @@
     </RelativeLayout>
 
 
-    <androidx.recyclerview.widget.RecyclerView
+    <com.north.light.libpicselect.widget.recyclerview.LibPicRecyclerView
         android:id="@+id/lib_pic_activity_pic_sel_recy"
         android:layout_width="0dp"
         android:layout_height="0dp"
