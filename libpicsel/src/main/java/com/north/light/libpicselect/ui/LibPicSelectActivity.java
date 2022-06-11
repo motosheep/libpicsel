@@ -54,8 +54,10 @@ public class LibPicSelectActivity extends LibPicBaseActivity {
     private boolean isShowCamera;//是否显示相机图标
     private boolean isShowGif;//显示gif标识
     private boolean isShowVideo;//显示视频标识
-    private boolean isCusCamera;//自定义相机标识
-    private boolean isCusVideoPlayUI;//自定义视频播放界面
+    //1系统默认拍照 2使用图片自带的拍照 3使用开发者自定义的拍照
+    private int isCusCameraMode;
+    //1系统默认播放 2使用图片自带的播放 3使用开发者自定义的播放
+    private int mCusVideoPlayUIMode = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,8 +72,8 @@ public class LibPicSelectActivity extends LibPicBaseActivity {
         isShowCamera = getIntent().getBooleanExtra(LibPicIntentCode.PIC_SEL_DATA_NEED_CAMERA, false);//相机显示标识
         isShowGif = getIntent().getBooleanExtra(LibPicIntentCode.PIC_SEL_DATA_SHOW_GIF, false);//gif显示标识
         isShowVideo = getIntent().getBooleanExtra(LibPicIntentCode.PIC_SEL_DATA_SHOW_VIDEO, false);//视频显示标识
-        isCusCamera = getIntent().getBooleanExtra(LibPicIntentCode.PIC_SEL_DATA_CUS_CAMERA, false);//自定义相机标识
-        isCusVideoPlayUI = getIntent().getBooleanExtra(LibPicIntentCode.PIC_SEL_DATA_CUS_VIDEO_PLAYER, false);//自定义视频播放界面
+        isCusCameraMode = getIntent().getIntExtra(LibPicIntentCode.PIC_SEL_DATA_CUS_CAMERA, 1);//自定义相机标识
+        mCusVideoPlayUIMode = getIntent().getIntExtra(LibPicIntentCode.PIC_SEL_DATA_CUS_VIDEO_PLAYER, 1);//自定义视频播放界面
         if (mLimit > 9) mLimit = 9;
         mRecyContent = findViewById(R.id.lib_pic_activity_pic_sel_recy);
         mBack = findViewById(R.id.lib_pic_activity_pic_sel_back);
@@ -138,7 +140,7 @@ public class LibPicSelectActivity extends LibPicBaseActivity {
                     }
                     //赋值对象到内存中
                     LibPicSelIntentInfo.getInstance().setPicList(result);
-                    LibPicBrowserActivity.launch(LibPicSelectActivity.this, pos, mLimit,isCusVideoPlayUI);
+                    LibPicBrowserActivity.launch(LibPicSelectActivity.this, pos, mLimit, mCusVideoPlayUIMode);
                 }
             }
 
@@ -151,11 +153,18 @@ public class LibPicSelectActivity extends LibPicBaseActivity {
             @Override
             public void camera() {
                 //拍照
-                if (isCusCamera) {
-                    //回调，并结束当前页面
-                    LibPicDataBusManager.getInstance().takeCameraCus(LibPicSelectActivity.this,0);
-                } else {
-                    PicSelMain.getInstance().takeCamera(LibPicSelectActivity.this, false, 0);
+                switch (isCusCameraMode) {
+                    case 1:
+                        PicSelMain.getInstance().takeCamera(LibPicSelectActivity.this, 1, 0);
+                        break;
+                    case 2:
+                        LibPicDataBusManager.getInstance().takeCameraInnerCus(LibPicSelectActivity.this, 0);
+                        break;
+                    case 3:
+                        LibPicDataBusManager.getInstance().takeCameraOuterCus(LibPicSelectActivity.this, 0);
+                        break;
+                    default:
+                        break;
                 }
             }
         });

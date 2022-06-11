@@ -34,7 +34,7 @@ public class MainActivity extends AppCompatActivity {
 //                String path = "/storage/emulated/0/Android/data/com.north.light.picsel/files/lib_pic_sel/camera/1649036977293.jpg";
 //                String path2 = "/storage/emulated/0/DCIM/Camera/VID_20220404_095827.mp4";
                 PicSelMain.getInstance().getPic(MainActivity.this, true, 3,
-                        true, true, false, false);
+                        true, true, 1, 1);
                 //剪裁/storage/emulated/0/Android/data/com.north.light.picsel/files/lib_pic_sel/camera/1649036977293.jpg
 //                PicSelMain.getInstance().cropPic(MainActivity.this,
 //                        path,false,1,1);

@@ -76,20 +76,36 @@ public class LibPicDataBusManager implements Serializable {
         }
     }
 
-    //播放视频--自定义
-    public void playVideoCus(Activity activity, String path) {
+    //播放视频--图库内部自定义
+    public void playVideoInnerCus(Activity activity, String path) {
         for (LibPicDataBusListener cache : mListener) {
             if (cache != null) {
-                cache.playCusVideo(activity, path);
+                cache.playCusVideoInner(activity, path);
+            }
+        }
+    }
+    //播放视频--开发者自定义
+    public void playVideoOuterCus(Activity activity, String path) {
+        for (LibPicDataBusListener cache : mListener) {
+            if (cache != null) {
+                cache.playCusVideoOuter(activity, path);
             }
         }
     }
 
     //拍照--自定义
-    public void takeCameraCus(Activity activity,int org) {
+    public void takeCameraInnerCus(Activity activity, int org) {
         for (LibPicDataBusListener cache : mListener) {
             if (cache != null) {
-                cache.takeCameraCus(activity,org);
+                cache.takeCameraInnerCus(activity,org);
+            }
+        }
+    }
+    //拍照--自定义
+    public void takeCameraOuterCus(Activity activity, int org) {
+        for (LibPicDataBusListener cache : mListener) {
+            if (cache != null) {
+                cache.takeCameraOuterCus(activity,org);
             }
         }
     }

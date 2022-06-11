@@ -15,9 +15,9 @@ import androidx.core.content.FileProvider;
 import com.north.light.libpicselect.bean.LibPicSelIntentInfo;
 import com.north.light.libpicselect.bean.LibPicSelMidInfo;
 import com.north.light.libpicselect.callback.LibPicSelMediaInfo;
+import com.north.light.libpicselect.constant.LibPicConstant;
 import com.north.light.libpicselect.constant.LibPicIntentCode;
 import com.north.light.libpicselect.constant.LibPicPathConstant;
-import com.north.light.libpicselect.constant.LibPicConstant;
 import com.north.light.libpicselect.databus.LibPicDataBusListener;
 import com.north.light.libpicselect.databus.LibPicDataBusManager;
 import com.north.light.libpicselect.model.LibPicSelConfig;
@@ -102,31 +102,33 @@ public class PicSelMain {
             }
 
             @Override
-            public void playCusVideo(Activity activity, String path) {
-                //播放自定义视频
+            public void playCusVideoInner(Activity activity, String path) {
+                //播放自定义界面视频--图库内部
                 Log.e(TAG, "playCusVideo： " + path);
-                if (actionOutSide()) {
-                    for (PicActionListener callbackListener : actionListener) {
-                        callbackListener.cusVideoPlay(activity, path);
-                    }
-                    activity.finish();
-                    return;
-                }
                 playCusVideoUI(activity, path);
             }
 
             @Override
-            public void takeCameraCus(Activity activity, int org) {
-                Log.e(TAG, "takeCameraCus");
-                if (actionOutSide()) {
-                    for (PicActionListener callbackListener : actionListener) {
-                        callbackListener.cusCameraTake(activity);
-                    }
-                    activity.finish();
-                    return;
+            public void playCusVideoOuter(Activity activity, String path) {
+                //播放自定义界面视频--开发者自定义
+                for (PicActionListener callbackListener : actionListener) {
+                    callbackListener.cusVideoPlay(activity, path);
                 }
-                //自定义相机
-                takeCamera(activity, true, org);
+                activity.finish();
+            }
+
+            @Override
+            public void takeCameraInnerCus(Activity activity, int org) {
+                Log.e(TAG, "takeCameraCus");
+                //图库自带自定义相机
+                takeCamera(activity, 2, org);
+            }
+
+            @Override
+            public void takeCameraOuterCus(Activity activity, int org) {
+                //开发者自定义相机
+                takeCamera(activity, 3, org);
+                activity.finish();
             }
 
             @Override
@@ -138,31 +140,16 @@ public class PicSelMain {
     }
 
     /**
-     * 图片库播放视频页面
-     */
-    private void playCusVideoUI(Activity activity, String path) {
-        if (TextUtils.isEmpty(path)) {
-            return;
-        }
-        LibPicSelMidInfo midInfo = new LibPicSelMidInfo();
-        midInfo.putWrapper(LibPicIntentCode.CUS_VIDEO_PLAY_PATH, path);
-        midInfo.setREQ_TYPE(LibPicIntentCode.CUS_VIDEO_PLAY_REQ);
-        Intent intent1 = new Intent(activity, LibPicSelMidActivity.class);
-        intent1.putExtra(LibPicIntentCode.PIC_SEL_MID_PARAMS, midInfo);
-        activity.startActivityForResult(intent1, LibPicIntentCode.PIC_SEL_MID_REQ_CODE);
-    }
-
-    /**
      * V2-----------------------------------------------------------------------------------------
      * */
 
     /**
      * 调用摄像头拍照
      *
-     * @param custom true 自定义 false 系统相机
-     * @param org    1前置 0非前置
+     * @param customMode 1系统相机 2图库自定义相机 3开发者自定义相机
+     * @param org        1前置 0非前置
      */
-    public void takeCamera(Activity activity, boolean custom, int org) {
+    public void takeCamera(Activity activity, int customMode, int org) {
         if (!LibPicPermissionCheck.getInstance().check(LibPicPermissionType.TYPE_CAMERA_EXTERNAL)) {
             noPermissionNotify();
             return;
@@ -170,29 +157,37 @@ public class PicSelMain {
         if (org != 1 && org != 0) {
             return;
         }
-        if (!custom) {
-            takePic(activity, org);
-        } else {
-            //自定义拍照页面
-            takePicCus(activity, org);
+        switch (customMode) {
+            case 1:
+                takePic(activity, org);
+                break;
+            case 2:
+                takePicCus(activity, org);
+                break;
+            case 3:
+                //开发者自定义UI
+                for (PicActionListener callbackListener : actionListener) {
+                    callbackListener.cusCameraTake(activity);
+                }
+                break;
         }
     }
 
     /**
      * 获取图片
      *
-     * @param showCamera 是否显示相机
-     * @param cusCamera  拍照情况下，是否使用自定义相机
-     * @param limit      选择图片数量
+     * @param showCamera    是否显示相机
+     * @param cusCameraMode 拍照情况下，是否使用自定义相机
+     * @param limit         选择图片数量
      */
     public void getPic(Activity activity, boolean showCamera,
                        int limit, boolean showVideo,
-                       boolean showGif, boolean cusCamera, boolean cusPlayer) {
+                       boolean showGif, int cusCameraMode, int cusPlayerMode) {
         if (!LibPicPermissionCheck.getInstance().check(LibPicPermissionType.TYPE_CAMERA_EXTERNAL)) {
             noPermissionNotify();
             return;
         }
-        getPicVideoMul(false, activity, limit, showCamera, showVideo, showGif, cusCamera, cusPlayer);
+        getPicVideoMul(false, activity, limit, showCamera, showVideo, showGif, cusCameraMode, cusPlayerMode);
     }
 
     /**
@@ -233,7 +228,7 @@ public class PicSelMain {
     /**
      * 浏览图片
      *
-     * @param videoWay 浏览视频时的方式：1系统自带 2自定义视频播放页面
+     * @param videoWay 浏览视频时的方式：1系统自带 2图库自带 3开发者自定义
      */
     public void browsePic(List<String> picList, Activity activity, int pos, int videoWay) {
         if (picList == null || picList.size() == 0) {
@@ -252,21 +247,39 @@ public class PicSelMain {
     //内部实现func----------------------------------------------------------------------------
 
     /**
+     * 图片库播放视频页面
+     */
+    private void playCusVideoUI(Activity activity, String path) {
+        if (TextUtils.isEmpty(path)) {
+            return;
+        }
+        LibPicSelMidInfo midInfo = new LibPicSelMidInfo();
+        midInfo.putWrapper(LibPicIntentCode.CUS_VIDEO_PLAY_PATH, path);
+        midInfo.setREQ_TYPE(LibPicIntentCode.CUS_VIDEO_PLAY_REQ);
+        Intent intent1 = new Intent(activity, LibPicSelMidActivity.class);
+        intent1.putExtra(LibPicIntentCode.PIC_SEL_MID_PARAMS, midInfo);
+        activity.startActivityForResult(intent1, LibPicIntentCode.PIC_SEL_MID_REQ_CODE);
+    }
+
+    /**
      * 获取多个图片or视频
+     *
+     * @param cusPlayerMode 1系统默认 2使用图片自带的播放 3使用开发者自定义的播放
+     * @param cusCameraMode 1系统默认 2使用图片自带的相机 3使用开发者自定义的相机
      */
     private void getPicVideoMul(boolean isTakeCamera, Activity activity, int size, boolean showCamera
-            , boolean showVideo, boolean showGif, boolean cusCamera, boolean cusPlayer) {
+            , boolean showVideo, boolean showGif, int cusCameraMode, int cusPlayerMode) {
         if (isTakeCamera) {
-            takePic(activity, 0);
+            takeCamera(activity, cusCameraMode, 0);
         } else {
             //进入三方图片选择
             LibPicSelMidInfo midInfo = new LibPicSelMidInfo();
             midInfo.putWrapper(LibPicIntentCode.PIC_SEL_DATA_LIMIT, size);
             midInfo.putWrapper(LibPicIntentCode.PIC_SEL_DATA_NEED_CAMERA, showCamera);
             midInfo.putWrapper(LibPicIntentCode.PIC_SEL_DATA_SHOW_VIDEO, showVideo);
-            midInfo.putWrapper(LibPicIntentCode.PIC_SEL_DATA_CUS_CAMERA, cusCamera);
+            midInfo.putWrapper(LibPicIntentCode.PIC_SEL_DATA_CUS_CAMERA, cusCameraMode);
             midInfo.putWrapper(LibPicIntentCode.PIC_SEL_DATA_SHOW_GIF, showGif);
-            midInfo.putWrapper(LibPicIntentCode.PIC_SEL_DATA_CUS_VIDEO_PLAYER, cusPlayer);
+            midInfo.putWrapper(LibPicIntentCode.PIC_SEL_DATA_CUS_VIDEO_PLAYER, cusPlayerMode);
             midInfo.setREQ_TYPE(LibPicIntentCode.PIC_SEL_REQ);
             Intent intent1 = new Intent(activity, LibPicSelMidActivity.class);
             intent1.putExtra(LibPicIntentCode.PIC_SEL_MID_PARAMS, midInfo);
@@ -456,13 +469,6 @@ public class PicSelMain {
         for (PicCallbackListener callbackListener : picListener) {
             callbackListener.error("no permission,please grant");
         }
-    }
-
-    /**
-     * 是否自定义事件--通过监听集合判断，拍摄图片，视频播放是否需要交由外部处理--list size judge
-     */
-    private boolean actionOutSide() {
-        return actionListener.size() != 0;
     }
 
     //路径--------------------------------------------------------------------------------------

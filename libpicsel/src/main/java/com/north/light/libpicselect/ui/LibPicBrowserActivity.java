@@ -35,7 +35,7 @@ import java.util.List;
  */
 public class LibPicBrowserActivity extends LibPicBaseActivity {
     private int mBrowserPos = 0;//浏览位置
-    private int mVideoPlayWay = 1;//视频播放方式：1系统自带 2开发者自定义
+    private int mVideoPlayWay = 1;
     private static final String TAG = LibPicBrowserActivity.class.getName();
     private LibPicSelViewPager mViewPager;
     private List<PhotoView> mViewList = new ArrayList<>();
@@ -161,8 +161,9 @@ public class LibPicBrowserActivity extends LibPicBaseActivity {
                     if (mVideoPlayWay == 1) {
                         LibPicDataBusManager.getInstance().playVideoSystem(LibPicBrowserActivity.this, path);
                     } else if (mVideoPlayWay == 2) {
-                        //自定义播放--广播
-                        LibPicDataBusManager.getInstance().playVideoCus(LibPicBrowserActivity.this, path);
+                        LibPicDataBusManager.getInstance().playVideoInnerCus(LibPicBrowserActivity.this, path);
+                    } else if(mVideoPlayWay == 3){
+                        LibPicDataBusManager.getInstance().playVideoOuterCus(LibPicBrowserActivity.this, path);
                     }
                 } catch (Exception e) {
                     Log.d(TAG, "mPlayBt e: " + e.getMessage());
@@ -265,13 +266,15 @@ public class LibPicBrowserActivity extends LibPicBaseActivity {
 
     /**
      * 指定图片位置的方法--内部
+     *
+     * @param cusVideoPlayUIMode 1系统默认播放 2使用图库自带的播放 3使用开发者自定义的播放
      */
-    public static void launch(Activity activity, int position, int selLimit, boolean isCusVideoPlayUI) {
+    public static void launch(Activity activity, int position, int selLimit, int cusVideoPlayUIMode) {
         Intent intent = new Intent(activity, LibPicBrowserActivity.class);
         intent.putExtra(LibPicIntentCode.BROWSER_POSITION, position);
         intent.putExtra(LibPicIntentCode.BROWSER_SHOW_SEL_MODE, true);
         intent.putExtra(LibPicIntentCode.BROWSER_SEL_LIMIT, selLimit);
-        intent.putExtra(LibPicIntentCode.BROWSER_VIDEO_WAY, (isCusVideoPlayUI) ? 2 : 1);
+        intent.putExtra(LibPicIntentCode.BROWSER_VIDEO_WAY, cusVideoPlayUIMode);
         activity.startActivityForResult(intent, LibPicIntentCode.BROWSER_CODE_REQUEST);
     }
 

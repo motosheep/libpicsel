@@ -29,10 +29,14 @@ public interface LibPicDataBusListener {
     //操作行为---------------------------------------------------------
 
     //播放视频
-    void playCusVideo(Activity activity, String path);
+    void playCusVideoInner(Activity activity, String path);
+
+    void playCusVideoOuter(Activity activity, String path);
 
     //使用自定义相机
-    void takeCameraCus(Activity activity,int org);
+    void takeCameraInnerCus(Activity activity, int org);
+
+    void takeCameraOuterCus(Activity activity, int org);
 
     //使用手机系统播放视频
     void playVideoSystem(Activity activity, String path);

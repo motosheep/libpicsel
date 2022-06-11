@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/color_4d000000"
+    android:background="@color/lib_pic_color_4d000000"
     android:orientation="vertical">
 
     <androidx.recyclerview.widget.RecyclerView
@@ -10,7 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="top|center"
-        android:background="@color/color_FFFFFF" />
+        android:background="@color/lib_pic_color_FFFFFF" />
 
     <LinearLayout
         android:id="@+id/lib_pic_activity_pic_directory_root"

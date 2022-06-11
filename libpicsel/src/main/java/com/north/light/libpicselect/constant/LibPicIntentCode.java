@@ -23,7 +23,9 @@ public class LibPicIntentCode {
     public static final String PIC_SEL_DATA_SHOW_GIF = "PIC_SEL_DATA_SHOW_GIF";
     public static final String PIC_SEL_DATA_SHOW_VIDEO = "PIC_SEL_DATA_SHOW_VIDEO";
     public static final String PIC_SEL_DATA_SELECT = "PIC_SEL_DATA_SELECT";
+    //1系统自带拍照 2使用图片自带的拍照 3使用开发者自定义的拍照
     public static final String PIC_SEL_DATA_CUS_CAMERA = "PIC_SEL_DATA_CUS_CAMERA";
+    //1系统自带播放 2使用图片自带的播放 3使用开发者自定义的播放
     public static final String PIC_SEL_DATA_CUS_VIDEO_PLAYER = "PIC_SEL_DATA_CUS_VIDEO_PLAYER";
     //图片浏览--------------------------------------------------------------------
     public static final int BROWSER_CODE_REQUEST = 0x1101;
@@ -32,7 +34,7 @@ public class LibPicIntentCode {
     public static final String BROWSER_POSITION = "BROWSER_POSITION";
     public static final String BROWSER_SHOW_SEL_MODE = "BROWSER_SHOW_SEL_MODE";
     public static final String BROWSER_SEL_LIMIT = "BROWSER_SEL_LIMIT";
-    //视频播放方式：1系统自带 2开发者自定义
+    //视频播放方式：1系统自带 2图库自带 3开发者自定义
     public static final String BROWSER_VIDEO_WAY = "BROWSER_VIDEO_WAY";
     //图片浏览--------------------------------------------------------------------
     //浏览视频方式：1系统自带 2自定义视频播放页面

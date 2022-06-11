@@ -1,7 +1,6 @@
 package com.north.light.libpicselect.ui;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.pm.ActivityInfo;
 import android.os.Build;
 import android.os.Bundle;
@@ -11,7 +10,6 @@ import android.view.WindowManager;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentActivity;
-import androidx.lifecycle.MutableLiveData;
 
 import com.north.light.libpicselect.R;
 
@@ -32,7 +30,7 @@ public abstract class LibPicBaseActivity extends FragmentActivity {
                 Window window = getWindow();
                 window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
                 //顶部状态栏
-                window.setStatusBarColor(getResources().getColor(R.color.color_000000));
+                window.setStatusBarColor(getResources().getColor(R.color.lib_pic_color_000000));
                 //底部导航栏
                 //window.setNavigationBarColor(activity.getResources().getColor(colorResId));
             }

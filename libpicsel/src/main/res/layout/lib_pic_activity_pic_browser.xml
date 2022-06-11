@@ -7,7 +7,7 @@
         android:id="@+id/lib_pic_activity_pic_browser_viewpager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/color_000000" />
+        android:background="@color/lib_pic_color_000000" />
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -46,7 +46,7 @@
             android:paddingTop="2dp"
             android:paddingRight="6dp"
             android:paddingBottom="2dp"
-            android:textColor="@color/color_FFFFFF"
+            android:textColor="@color/lib_pic_color_FFFFFF"
             android:textSize="14sp" />
     </RelativeLayout>
 
@@ -70,6 +70,6 @@
         android:background="@drawable/lib_pic_shape_pic_select_confirm"
         android:padding="6dp"
         android:text="@string/lib_pic_activity_pic_browser_confirm"
-        android:textColor="@color/color_000000" />
+        android:textColor="@color/lib_pic_color_000000" />
 
 </RelativeLayout>
